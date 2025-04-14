@@ -20,13 +20,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd teacher-rating-app
+          cd public
           npm install
 
-      - name: Build project (optional if using build step)
+      - name: Build (optional)
         run: |
-          cd teacher-rating-app
-          npm run build || echo "No build step defined, skipping"
+          cd public
+          npm run build || echo "No build script defined"
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -35,5 +35,6 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
           channelId: live
           projectId: "teacherratingapp"
+
 
 
