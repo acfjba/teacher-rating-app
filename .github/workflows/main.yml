@@ -1,4 +1,3 @@
-
 name: Deploy to Firebase Hosting
 
 on:
@@ -28,5 +27,6 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
           channelId: live
-          projectId: teacherratingapp
+          projectId: teacherratingapp "1:114496602504:web:62d555a0358a32b0cdba3d"
+
 
