@@ -18,13 +18,15 @@ jobs:
         with:
           node-version: 18
 
-      - name: Change into app directory
-        run: cd teacher-rating-app
-
       - name: Install dependencies
         run: |
           cd teacher-rating-app
           npm install
+
+      - name: Build project (optional if using build step)
+        run: |
+          cd teacher-rating-app
+          npm run build || echo "No build step defined, skipping"
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -32,6 +34,6 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
           channelId: live
-          projectId: teacherratingapp "1:114496602504:web:62d555a0358a32b0cdba3d"
+          projectId: "teacherratingapp"
 
 
