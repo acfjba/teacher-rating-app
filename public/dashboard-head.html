@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Head – Teacher Rating App V6.23</title>
+  <link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/print-summary.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/charts.js"></script>
+</head>
+<body>
+  <header>
+    <h1 class="school-name">[School Name]</h1>
+    <img src="img/logo.png" alt="School Logo" class="school-logo">
+    <nav>
+      <a href="index.html">Home</a> |
+      <a href="instructions.html">Instructions</a> |
+      <a href="policy.html">Policy</a> |
+      <a href="logout.html">Logout</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Dashboard Head</h2>
+    <p>This is the Dashboard Head page.</p>
+  <button onclick="printTeacherSummary('teacher_001')">🖨️ Print Report</button>
+<canvas id="termChart" width="400" height="200"></canvas>
+<script>loadTermSummaryChart();</script>
+
+<div class="branding-settings p-4 border rounded bg-white mb-6">
+  <h2 class="text-xl font-bold mb-2">🎨 School Branding</h2>
+  <label class="block mb-2">Upload School Logo:</label>
+  <input type="file" id="logoUpload" accept="image/*" class="mb-4">
+  <label class="block mb-2">Choose Primary Theme Color:</label>
+  <input type="color" id="themeColor" value="#3b82f6" class="w-16 h-8 mb-4">
+  <button onclick="saveBranding()" class="bg-blue-500 text-white px-4 py-2 rounded">Save Branding</button>
+</div>
+<script>
+  function saveBranding() {
+    const logo = document.getElementById('logoUpload').files[0];
+    const color = document.getElementById('themeColor').value;
+    if (logo) {
+      const storageRef = firebase.storage().ref("branding/logo.png");
+      storageRef.put(logo).then(() => alert("Logo uploaded!"));
+    }
+    firebase.firestore().collection("branding").doc("theme").set({ color }).then(() => {
+      document.documentElement.style.setProperty("--theme-color", color);
+      alert("Theme color saved!");
+    });
+  }
+</script>
+
+</main>
+  <footer>
+    <p>&copy; 2025 Teacher Rating System – V6.23</p>
+  </footer>
+</body>
+</html>
