@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TRA Platform Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(120deg, #e9e3d1 0%, #f0f2f5 100%);
+    }
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border: 6px solid #934b13;
+      border-radius: 30px;
+      outline: 8px solid #eec77f;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 6px 36px rgba(80,40,20,0.09);
+    }
+    .logo { width: 60px; margin: 0 auto 1rem; display: block; }
+    h1 { color: #a12828; margin-bottom: 0.5rem; }
+    p.subtitle { color: #432; margin-bottom: 1.5rem; }
+    .tabs { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .tabs button {
+      flex: 1;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #a12828 15%, #183fb3 85%);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .tabs button.inactive { opacity: 0.6; }
+    .panel { display: none; text-align: left; }
+    .panel.active { display: block; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.3rem; color: #6a370f; }
+    input { width: 100%; padding: 0.6rem; border: 1.7px solid #c4a484; border-radius: 6px; font-size: 1rem; }
+    .info { background: #f8ecd0; padding: 0.5rem; border-left: 5px solid #b22222; margin-bottom: 1rem; color: #755217; }
+    button.login { width: 100%; padding: 0.8rem; border: none; border-radius: 7px; background: linear-gradient(90deg, #a12828 15%, #183fb3 85%); color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    #msg { margin-top: 1rem; height: 1.2rem; color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="images/Tra Logo.png" alt="TRA Logo" class="logo">
+    <h1>TRA Login</h1>
+    <p class="subtitle">Select role &amp; sign in</p>
+
+    <div class="tabs">
+      <button id="btnSchool">School</button>
+      <button id="btnAdmin" class="inactive">Admin</button>
+    </div>
+
+    <div id="schoolPanel" class="panel active">
+      <div class="form-group">
+        <label for="schoolId">School ID</label>
+        <input id="schoolId" name="schoolId" type="text" placeholder="SCH123">
+      </div>
+      <div class="form-group">
+        <label for="schoolEmail">Email</label>
+        <input id="schoolEmail" name="schoolEmail" type="email" placeholder="you@school.edu">
+      </div>
+      <div class="info">Use your registered school email.</div>
+      <div class="form-group">
+        <label for="schoolPwd">Password</label>
+        <input id="schoolPwd" name="schoolPwd" type="password">
+      </div>
+      <button class="login" id="loginSchool">Log In</button>
+    </div>
+
+    <div id="adminPanel" class="panel">
+      <div class="form-group">
+        <label for="adminEmail">Admin Email</label>
+        <input id="adminEmail" name="adminEmail" type="email" placeholder="admin@school.io">
+      </div>
+      <div class="form-group">
+        <label for="adminPwd">Password</label>
+        <input id="adminPwd" name="adminPwd" type="password">
+      </div>
+      <button class="login" id="loginAdmin">Log In</button>
+    </div>
+
+    <div id="msg"></div>
+  </div>
+
+  <script type="module">
+    // Static imports for reliability
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // Firebase config
+    const cfg = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      projectId: "teacherratingapp",
+      storageBucket: "teacherratingapp.appspot.com",
+      messagingSenderId: "114496602504",
+      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    const app  = initializeApp(cfg);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // UI elements
+    const msg         = document.getElementById('msg');
+    const btnSchool   = document.getElementById('btnSchool');
+    const btnAdmin    = document.getElementById('btnAdmin');
+    const panelSchool = document.getElementById('schoolPanel');
+    const panelAdmin  = document.getElementById('adminPanel');
+
+    // Toggle panels
+    function toggle(isSchool) {
+      panelSchool.classList.toggle('active', isSchool);
+      panelAdmin.classList.toggle('active', !isSchool);
+      btnSchool.classList.toggle('inactive', !isSchool);
+      btnAdmin.classList.toggle('inactive', isSchool);
+    }
+    btnSchool.onclick = () => toggle(true);
+    btnAdmin.onclick  = () => toggle(false);
+    toggle(true);
+
+    // Show error
+    function showError(text) {
+      msg.textContent = text;
+      setTimeout(() => msg.textContent = '', 3000);
+    }
+
+    // School login
+    document.getElementById('loginSchool').onclick = async () => {
+      const id = document.getElementById('schoolId').value.trim();
+      const em = document.getElementById('schoolEmail').value.trim();
+      const pw = document.getElementById('schoolPwd').value;
+      if (!id || !em || !pw) return showError('Fill all fields');
+      try {
+        await signInWithEmailAndPassword(auth, em, pw);
+        // Optional: validate school ID against Firestore
+        location.href = 'teacher-dashboard.html';
+      } catch (e) {
+        showError(e.code);
+      }
+    };
+
+    // Admin login
+    document.getElementById('loginAdmin').onclick = async () => {
+      const em = document.getElementById('adminEmail').value.trim();
+      const pw = document.getElementById('adminPwd').value;
+      if (!em || !pw) return showError('Fill all fields');
+      try {
+        const cred = await signInWithEmailAndPassword(auth, em, pw);
+        const snap = await getDoc(doc(db, 'systemAdmins', cred.user.uid));
+        if (!snap.exists()) return showError('Not an admin');
+        location.href = 'admin-dashboard.html';
+      } catch (e) {
+        showError(e.code);
+      }
+    };
+  </script>
+</body>
+</html>
