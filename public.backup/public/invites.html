@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TRA Platform – User Management & Logs</title>
+  <link href="styles/main.css" rel="stylesheet"/>
+  <style>
+    /* Container styling */
+    .tapa-users-container {
+      background: #fff;
+      border: 6px solid #934b13;
+      border-radius: 30px;
+      outline: 8px solid #eec77f;
+      outline-offset: .6rem;
+      box-shadow: 0 6px 36px rgba(80,40,20,0.09);
+      width: 96vw; max-width: 900px;
+      margin: 3rem auto;
+      padding: 2.3rem 2.2rem;
+      animation: fadein .7s ease-out;
+    }
+    @keyframes fadein {from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);} }
+    .tapa-users-container .tapa-logo {
+      display: block;
+      margin: 0 auto 1rem;
+      width: 64px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 3px 12px #eee;
+    }
+    .users-title { text-align:center; font-size:1.63rem; font-weight:700; color:#a12828; margin-bottom:.7rem; }
+    .users-desc  { text-align:center; font-size:1.05rem; color:#432; margin-bottom:1.2rem; }
+    table { width:100%; border-collapse:collapse; margin-top:1rem; }
+    th, td { padding:.6rem; border:1px solid #c4a484; text-align:left; }
+    th { background:#eec77f; }
+    .action-btn { padding:.4rem .8rem; border:none; border-radius:.5rem; cursor:pointer; font-size:.9rem; }
+    .action-btn.approve { background:#16a34a; color:#fff; }
+    .action-btn.reject  { background:#dc2626; color:#fff; }
+    /* Summary section */
+    .summary { margin-top:2rem; padding:1rem; background:#f9f9f9; border:1px solid #ddd; border-radius:8px; }
+    .summary h3 { margin-bottom:1rem; color:#a12828; }
+    .summary p { margin: .4rem 0; font-size:1rem; }
+  </style>
+</head>
+<body>
+  <div class="tapa-users-container">
+    <img src="images/Tra Logo.png" class="tapa-logo" alt="TRA Logo"/>
+    <div class="users-title">User Management & Activity Logs</div>
+    <div class="users-desc">Review user registrations and login/logout records.</div>
+
+    <!-- Registered Users Table -->
+    <h2>Registered Users</h2>
+    <table id="registeredTable">
+      <thead><tr><th>Full Name</th><th>Username</th><th>Role</th><th>School ID</th><th>Email</th><th>Registered On</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Activity Logs Table -->
+    <h2 style="margin-top:2rem;">Login/Logout Logs</h2>
+    <table id="activityTable">
+      <thead><tr><th>User Email</th><th>Action</th><th>Timestamp</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Summary Section -->
+    <div class="summary">
+      <h3>Summary</h3>
+      <p>Total Users: <span id="totalUsers">0</span></p>
+      <p>Currently Logged In: <span id="loggedInCount">0</span></p>
+      <p>Currently Logged Out: <span id="loggedOutCount">0</span></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // Firebase init (dbteacherrating)
+    const firebaseConfig = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+      projectId: "teacherratingapp",
+      storageBucket: "teacherratingapp.firebasestorage.app",
+      messagingSenderId: "114496602504",
+      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const registeredBody = document.querySelector('#registeredTable tbody');
+    const activityBody   = document.querySelector('#activityTable tbody');
+
+    // Auth guard: only admin
+    onAuthStateChanged(auth, user => {
+      if (!user) return location.href = 'login.html';
+      getDocs(collection(db,'users')).then(snap=>{
+        const me = snap.docs.find(d=>d.id===user.uid)?.data();
+        if (me.role!=='admin') return location.href='login.html';
+        loadRegistered(); loadActivity(); updateSummary();
+      });
+    });
+
+    async function loadRegistered() {
+      registeredBody.innerHTML='';
+      const snap = await getDocs(collection(db,'users'));
+      snap.forEach(d=>{
+        const u=d.data();
+        const date=u.timestamp?.toDate?.().toLocaleString()||'';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${u.fullName}</td><td>${u.username}</td><td>${u.role}</td><td>${u.schoolId}</td><td>${u.email}</td><td>${date}</td><td>${u.status||'pending'}</td><td><button class='action-btn approve' data-id='${d.id}'>Approve</button> <button class='action-btn reject' data-id='${d.id}'>Reject</button></td>`;
+        registeredBody.appendChild(tr);
+      });
+      attachRegHandlers();
+    }
+
+    function attachRegHandlers() {
+      document.querySelectorAll('#registeredTable .action-btn').forEach(btn=>{
+        btn.onclick=async()=>{
+          const id=btn.dataset.id;
+          const newSt=btn.classList.contains('approve')?'approved':'rejected';
+          await updateDoc(doc(db,'users',id),{status:newSt}); loadRegistered(); updateSummary();
+        };
+      });
+    }
+
+    async function loadActivity() {
+      activityBody.innerHTML='';
+      const q=query(collection(db,'activity'),orderBy('timestamp','desc'));
+      const snap=await getDocs(q);
+      snap.forEach(d=>{
+        const a=d.data();
+        const time=a.timestamp?.toDate?.().toLocaleString()||'';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${a.email}</td><td>${a.action}</td><td>${time}</td>`;
+        activityBody.appendChild(tr);
+      });
+    }
+
+    async function updateSummary() {
+      const uSnap=await getDocs(collection(db,'users'));
+      const total=uSnap.size;
+      let loggedIn=0;
+      uSnap.forEach(d=>{ if(d.data().status==='approved') loggedIn++; });
+      document.getElementById('totalUsers').textContent=total;
+      document.getElementById('loggedInCount').textContent=loggedIn;
+      document.getElementById('loggedOutCount').textContent=total-loggedIn;
+    }
+  </script>
+</body>
+</html>

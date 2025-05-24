@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TRA Platform – Summaries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Base reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: linear-gradient(120deg, #e9e3d1 0%, #f0f2f5 100%);
+    }
+    .container {
+      background: #fff;
+      border: 6px solid #934b13;
+      border-radius: 24px;
+      outline: 8px solid #eec77f;
+      outline-offset: 8px;
+      box-shadow: 0 6px 36px rgba(80,40,20,0.09);
+      width: 90vw;
+      max-width: 1000px;
+      padding: 2rem;
+      animation: fadein .7s ease-out;
+    }
+    @keyframes fadein { from { opacity: 0; transform: scale(.96);} to { opacity: 1; transform: scale(1);} }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .header img { width: 48px; margin-right: 1rem; }
+    .header h1 { font-size: 1.8rem; color: #a12828; }
+
+    .nav {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .nav a {
+      padding: 0.6rem 1.2rem;
+      text-decoration: none;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(90deg, #a12828 15%, #183fb3 85%);
+      border-radius: 6px;
+      transition: opacity .2s;
+    }
+    .nav a.inactive { opacity: .6; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #c4a484;
+      padding: 0.75rem;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th {
+      background: #eec77f;
+      color: #432;
+    }
+    tbody tr:nth-child(even) { background: #faf7f2; }
+
+    #messageBox {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.8rem;
+      background: #dc2626;
+      color: #fff;
+      border-radius: 6px;
+      display: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="messageBox"></div>
+    <div class="header">
+      <img src="images/Tra Logo.png" alt="TRA Logo" />
+      <h1>Task Rating Summaries</h1>
+    </div>
+    <nav class="nav">
+      <a href="admin-dashboard.html">Overview</a>
+      <a href="users.html">Users</a>
+      <a href="tasks.html">Tasks</a>
+      <a href="summaries.html" class="inactive">Summaries</a>
+    </nav>
+    <table id="summariesTable">
+      <thead>
+        <tr>
+          <th>School ID</th>
+          <th>User ID</th>
+          <th>Term</th>
+          <th>Average Rating</th>
+          <th>Date Generated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5" style="text-align:center; color:#755217;">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+      projectId: "teacherratingapp",
+      storageBucket: "teacherratingapp.appspot.com",
+      messagingSenderId: "114496602504",
+      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const msgBox = document.getElementById('messageBox');
+    const tbody = document.querySelector('#summariesTable tbody');
+
+    function showMessage(msg) {
+      msgBox.textContent = msg;
+      msgBox.style.display = 'block';
+      setTimeout(() => msgBox.style.display = 'none', 3000);
+    }
+
+    async function loadSummaries() {
+      try {
+        const snap = await getDocs(collection(db, 'summaries'));        
+        tbody.innerHTML = ''; // clear loading row
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${d.schoolId || '-'}</td>
+            <td>${d.userId || '-'}</td>
+            <td>${d.term || '-'}</td>
+            <td>${d.avgRating ?? '-'}</td>
+            <td>${d.generatedAt ? new Date(d.generatedAt.seconds*1000).toLocaleDateString() : '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#755217;">No summaries found.</td></tr>';
+        }
+      } catch (e) {
+        showMessage('Failed to load summaries');
+        console.error(e);
+      }
+    }
+
+    onAuthStateChanged(auth, user => {
+      if (!user) return location.href='login.html';
+      loadSummaries();
+    });
+  </script>
+</body>
+</html>

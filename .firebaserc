@@ -1,9 +1,5 @@
 {
   "projects": {
-<<<<<<< HEAD
     "default": "teacherratingapp"
-=======
-    "default": "your_project_id"
->>>>>>> 9c50b98 (Initial push of Teacher Rating App)
   }
 }
