@@ -1,89 +1,105 @@
-// scripts/auth.js
-import { initializeApp }       from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-                             from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs }
-                             from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+// public/scripts/auth.js
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
-// 1. Initialize Firebase
+// 1. Initialize Firebase (modular SDK)
 const firebaseConfig = {
   apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
   authDomain: "teacherratingapp.firebaseapp.com",
-  databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
   projectId: "teacherratingapp",
-  storageBucket: "teacherratingapp.firebasestorage.app",
+  storageBucket: "teacherratingapp.appspot.com",
   messagingSenderId: "114496602504",
   appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
-  // ...
 };
 const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db   = getFirestore(app);
-// 2. Session helpers
+
+// Session helpers
 export function setSession({ name, role, school }) {
   sessionStorage.setItem("userName", name);
   sessionStorage.setItem("userRole", role);
-  sessionStorage.setItem("userSchool", school || "");
+  if (school) sessionStorage.setItem("userSchool", school);
 }
 export function clearSession() {
   sessionStorage.clear();
 }
 
-// 3. Display popup
-export function showMessage(msg, type = "success") {
-  const box = document.getElementById("messageBox");
-  box.className = `alert alert-${type==="success"?"success":"danger"}`;
+// Display message popup (assumes #messageBox exists)
+export function showMessage(msg, type = 'success') {
+  const box = document.getElementById('messageBox');
+  box.className = type === 'success' ? 'message success' : 'message error';
   box.textContent = msg;
-  box.style.display = "block";
-  setTimeout(() => box.style.display = "none", 3000);
+  box.style.display = 'block';
+  setTimeout(() => box.style.display = 'none', 3000);
 }
 
-// 4. Login functions
+// 4. School login
 export async function loginSchool(id, email, password) {
-  await signInWithEmailAndPassword(auth, email, password);
-  const q = query(collection(db, "schools", id, "users"), where("email","==",email));
-  const snap = await getDocs(q);
-  if (snap.empty) throw new Error("No user found for this School ID");
-  const data = snap.docs[0].data();
-  setSession({ name: data.name, role: data.role, school: id });
+  // sign in with email/password
+  const { user } = await signInWithEmailAndPassword(auth, email, password);
+  // fetch user profile
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    throw new Error('User record not found.');
+  }
+  const data = userSnap.data();
+  // verify school ID
+  if (data.schoolId !== id) {
+    throw new Error('School ID does not match.');
+  }
+  setSession({ name: data.name, role: data.role, school: data.schoolId });
 }
 
-export async function loginAdmin(username, password) {
-  // your admin email logic (e.g. username@example.com)
-  const email = username;
-  await signInWithEmailAndPassword(auth, email, password);
-  const q = query(collection(db, "administrators"), where("email","==",email));
-  const snap = await getDocs(q);
-  if (snap.empty) throw new Error("Not an administrator");
-  const data = snap.docs[0].data();
-  setSession({ name: data.name, role: "admin" });
+// 5. Admin login
+export async function loginAdmin(email, password) {
+  const { user } = await signInWithEmailAndPassword(auth, email, password);
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    throw new Error('Administrator record not found.');
+  }
+  const data = userSnap.data();
+  if (data.role !== 'systemAdmin') {
+    throw new Error('Not an administrator.');
+  }
+  setSession({ name: data.name, role: data.role });
 }
 
-// 5. Logout
+// 6. Logout
 export async function logout() {
   await signOut(auth);
   clearSession();
-  window.location = "login.html";
+  window.location = 'index.html';
 }
 
-// 6. On each page load, verify login
+// 7. Guard on each page
 export function enforceLogin() {
   onAuthStateChanged(auth, user => {
-    const name = sessionStorage.getItem("userName");
+    const name = sessionStorage.getItem('userName');
     if (!user || !name) {
-      showMessage("Please log in first", "danger");
-      setTimeout(() => window.location = "login.html", 1500);
+      showMessage('Please log in first', 'error');
+      setTimeout(() => window.location = 'index.html', 1500);
     }
   });
 }
 
-// 7. Role-based nav
+// 8. Configure navigation links (role-based)
 export function configureNav() {
-  const role = sessionStorage.getItem("userRole");
-  document.getElementById("link-user-management").style.display =
-    role === "admin" ? "block" : "none";
-  // etc for other links...
-  // Logout link:
-  const logoutLink = document.getElementById("link-logout");
-  logoutLink.onclick = () => logout();
+  const role = sessionStorage.getItem('userRole');
+  document.querySelectorAll('[data-role-only]').forEach(el => {
+    const allowed = el.getAttribute('data-role-only').split(',');
+    el.style.display = allowed.includes(role) ? 'block' : 'none';
+  });
 }
