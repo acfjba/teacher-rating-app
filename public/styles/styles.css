@@ -1,0 +1,107 @@
+/* Layout */
+body {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f2f5;
+}
+.sidebar {
+  width: 260px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.tapa-header {
+  background: #b22222;
+  padding: 20px;
+  text-align: center;
+}
+.tapa-header img {
+  max-width: 50%;
+  height: auto;
+}
+
+/* Navigation links */
+.sidebar nav a {
+  display: block;
+  color: #00008B;
+  padding: 12px 20px;
+  text-decoration: none;
+}
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: #007FFF;
+  color: #00008B;
+}
+
+/* Content area */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+}
+
+/* Pop-up message box */
+#messageBox {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  display: none;
+}
+
+/* Card / widget panels */
+.widget {
+  background: #fff;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  background: #fff;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+table thead {
+  background: #e9ecef;
+}
+
+/* Form styling */
+form .form-group {
+  margin-bottom: 1rem;
+}
+form .form-group label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+form .form-group input,
+form .form-group select,
+form .form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+/* Buttons */
+.btn-primary    { background: #007FFF; color: #fff; }
+.btn-primary:hover { background: #0066cc; }
+.btn-success    { background: #28a745; color: #fff; }
+.btn-danger     { background: #dc3545; color: #fff; }
+
+/* Utility classes */
+.text-center { text-align: center; }
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+.p-4  { padding: 1rem; }

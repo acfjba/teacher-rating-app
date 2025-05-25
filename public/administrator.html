@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administrator Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f4e3;
+      margin: 0;
+      padding: 2rem;
+    }
+    .tapa-border {
+      border: 10px solid #9c6427;
+      border-radius: 5px;
+      background: #f7f4e9;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 { color: #4a3c1f; margin-top:0; }
+    .filter-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .filter-group label {
+      display: flex;
+      flex-direction: column;
+      font-weight: bold;
+    }
+    .filter-group input,
+    .filter-group select {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background: #4a3c1f;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1.5rem;
+    }
+    button:hover { background: #3a3217; }
+    section { margin-top: 2rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #e0d7c0; }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 200px;
+      overflow: auto;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="tapa-border">
+    <h1>Administrator Dashboard</h1>
+
+    <!-- Filters -->
+    <div class="filter-group">
+      <label>
+        School ID
+        <input type="text" id="filter-school" placeholder="e.g. HS001 or PS010" />
+      </label>
+      <label>
+        School Type
+        <select id="filter-type">
+          <option value="">All</option>
+          <option value="primary">Primary</option>
+          <option value="secondary">Secondary</option>
+        </select>
+      </label>
+      <button id="btn-search">Load Data</button>
+    </div>
+
+    <!-- Users -->
+    <section>
+      <h2>All Users</h2>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Email</th><th>Role</th>
+            <th>School ID</th><th>Type</th><th>Created At</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Logs -->
+    <section>
+      <h2>Entry Logs</h2>
+      <table id="logs-table">
+        <thead>
+          <tr>
+            <th>User ID</th><th>Action</th><th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Submissions -->
+    <section>
+      <h2>Submissions (Tasks, Summaries, Disciplinary & OHS)</h2>
+      <table id="subs-table">
+        <thead>
+          <tr>
+            <th>Collection</th><th>Doc ID</th><th>Submitted By</th>
+            <th>Created At</th><th>Data</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, query, where,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+  authDomain: "teacherratingapp.firebaseapp.com",
+  databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+  projectId: "teacherratingapp",
+  storageBucket: "teacherratingapp.firebasestorage.app",
+  messagingSenderId: "114496602504",
+  appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    // ────────────────────────────────────────────────────────────────────────
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    const $school = document.getElementById('filter-school');
+    const $type   = document.getElementById('filter-type');
+    const $btn    = document.getElementById('btn-search');
+
+    const usersTbody = document.querySelector('#users-table tbody');
+    const logsTbody  = document.querySelector('#logs-table tbody');
+    const subsTbody  = document.querySelector('#subs-table tbody');
+
+    async function loadUsers() {
+      usersTbody.innerHTML = '';
+      let col = collection(db, 'users');
+      const schoolId = $school.value.trim();
+      const schoolType = $type.value;
+
+      let q = col;
+      if (schoolId) q = query(col, where('schoolId','==',schoolId));
+      if (schoolType) q = query(q, where('schoolType','==',schoolType));
+
+      const snap = await getDocs(q);
+      snap.forEach(docSnap => {
+        const u = docSnap.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.name||''}</td>
+          <td>${u.email||''}</td>
+          <td>${u.role||''}</td>
+          <td>${u.schoolId||''}</td>
+          <td>${u.schoolType||''}</td>
+          <td>${u.createdAt?.toDate().toLocaleString()||''}</td>
+        `;
+        usersTbody.appendChild(tr);
+      });
+    }
+
+    async function loadLogs() {
+      logsTbody.innerHTML = '';
+      let col = collection(db, 'logs');
+      const schoolId = $school.value.trim();
+      // assume log docs have a schoolId field
+      let q = schoolId ? query(col, where('schoolId','==',schoolId)) : col;
+      const snap = await getDocs(query(q, orderBy('timestamp','desc')));
+      snap.forEach(docSnap => {
+        const l = docSnap.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${l.userId||''}</td>
+          <td>${l.action||''}</td>
+          <td>${l.timestamp?.toDate().toLocaleString()||''}</td>
+        `;
+        logsTbody.appendChild(tr);
+      });
+    }
+
+    const SUB_COLLECTIONS = ['tasks','summaries','disciplinary','ohsRecords'];
+    async function loadSubmissions() {
+      subsTbody.innerHTML = '';
+      const schoolId = $school.value.trim();
+
+      for (const colName of SUB_COLLECTIONS) {
+        const snap = await getDocs(collection(db, colName));
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          if (schoolId && d.schoolId !== schoolId) return;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${colName}</td>
+            <td>${docSnap.id}</td>
+            <td>${d.submittedBy||d.userId||''}</td>
+            <td>${d.createdAt?.toDate().toLocaleString()||''}</td>
+            <td><pre>${JSON.stringify(d, null, 2)}</pre></td>
+          `;
+          subsTbody.appendChild(tr);
+        });
+      }
+    }
+
+    $btn.addEventListener('click', async () => {
+      $btn.disabled = true;
+      await loadUsers();
+      await loadLogs();
+      await loadSubmissions();
+      $btn.disabled = false;
+    });
+
+    // Auto-load on page open
+    window.addEventListener('DOMContentLoaded', () => $btn.click());
+  </script>
+<script type="module" src="js/app.js"></script>
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TRA Platform - User Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Tapa style shared */
+    body { background: linear-gradient(120deg,#e9e3d1 0%,#f0f2f5 100%); margin:0; display:flex; font-family:'Montserrat',sans-serif; min-height:100vh; }
+    .sidebar { width:220px; background:#fff; border-right:5px solid #934b13; border-radius:0 30px 30px 0; padding:2rem 1rem; display:flex; flex-direction:column; box-shadow:4px 0 24px #d3b07212; }
+    .tapa-logo { width:54px; margin-bottom:1.5rem; }
+    .sidebar a { display:block; padding:.8rem 1rem; margin-bottom:.5rem; color:#183fb3; font-weight:600; text-decoration:none; background:linear-gradient(90deg,#e9e3d1 60%,#f7f2ec); border-left:4px solid #934b13; border-radius:8px; transition:.2s; }
+    .sidebar a:hover, .sidebar a.active { background:linear-gradient(90deg,#eec77f 60%,#ffeed8); color:#a12828; border-left:6px solid #a12828; }
+    .main-content { flex:1; padding:2rem; }
+    h1 { font-size:2rem; color:#a12828; margin-bottom:1rem; }
+    .user-form, .user-table { background:#fff; padding:1.5rem; border-radius:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.07); margin-bottom:2rem; }
+    .form-group { margin-bottom:1rem; }
+    label { display:block; font-weight:600; margin-bottom:.5rem; }
+    input, select { width:100%; padding:.6rem; border:1px solid #c4a484; border-radius:.6rem; }
+    button { padding:.7rem 1.2rem; border:none; border-radius:.7rem; color:#fff; background:linear-gradient(90deg,#a12828 15%,#183fb3 85%); font-weight:bold; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:.8rem; border:1px solid #ddd; text-align:left; }
+    th { background:#f7f7f7; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="images/Tra Logo.png" class="tapa-logo" alt="TRA Logo" />
+    <a href="tasks.html" id="nav-tasks">Tasks</a>
+    <a href="ratings.html" id="nav-ratings">Ratings</a>
+    <a href="summaries.html" id="nav-summaries">Summaries</a>
+    <a href="kpi-entry.html" id="nav-kpi">KPI</a>
+    <a href="library.html" id="nav-library">Library</a>
+    <a href="ohs-records.html" id="nav-ohs">OHS Records</a>
+    <a href="staff-records.html" id="nav-staff">Staff Records</a>
+    <a href="disciplinary.html" id="nav-disciplinary">Disciplinary</a>
+    <a href="user-management.html" class="active" id="nav-user">User Management</a>
+    <a href="email-invite.html" id="nav-invite">Email Invite</a>
+    <button id="btnLogout" style="margin-top:auto;">Logout</button>
+  </div>
+  <div class="main-content">
+    <h1>User Management</h1>
+    <!-- Add User Form -->
+    <div class="user-form">
+      <h2>Add New User</h2>
+      <div class="form-group">
+        <label for="newName">Full Name</label>
+        <input id="newName" type="text" placeholder="John Doe" />
+      </div>
+      <div class="form-group">
+        <label for="newEmail">Email</label>
+        <input id="newEmail" type="email" placeholder="user@school.edu" />
+      </div>
+      <div class="form-group">
+        <label for="newRole">Role</label>
+        <select id="newRole">
+          <option value="teachers">Teacher</option>
+          <option value="hods">HOD</option>
+          <option value="head teacher">Head Teacher</option>
+          <option value="primary school admin">Primary School Admin</option>
+          <option value="high school admin">High School Admin</option>
+          <option value="librarian">Librarian</option>
+          <option value="assistant principal">Assistant Principal</option>
+          <option value="vice principal">Vice Principal</option>
+          <option value="principal">Principal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="newPassword">Temporary Password</label>
+        <input id="newPassword" type="password" placeholder="••••••" />
+      </div>
+      <button id="btnAddUser">Add User</button>
+    </div>
+    <!-- Users Table -->
+    <div class="user-table">
+      <h2>Existing Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Email</th><th>Role</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userList">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    const cfg = { /* your config */ };
+    const app = initializeApp(cfg), auth = getAuth(app), db = getFirestore(app);
+    const school = sessionStorage.getItem('userSchool');
+
+    // Load existing users
+    async function loadUsers() {
+      const snap = await getDocs(collection(db,'schools',school,'users'));
+      const tbody = document.getElementById('userList');
+      tbody.innerHTML = '';
+      snap.forEach(d=>{
+        const u = d.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.name}</td>
+          <td>${u.email}</td>
+          <td>${u.role}</td>
+          <td><button onclick="deleteUser('${d.id}')">Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.deleteUser = async id => {
+      if(!confirm('Delete this user?')) return;
+      await deleteDoc(doc(db,'schools',school,'users',id));
+      loadUsers();
+    };
+
+    document.getElementById('btnAddUser').onclick = async ()=>{
+      const name = document.getElementById('newName').value.trim();
+      const email = document.getElementById('newEmail').value.trim();
+      const role = document.getElementById('newRole').value;
+      const pwd = document.getElementById('newPassword').value;
+      if(!name||!email||!role||!pwd) return alert('Fill all fields');
+      // Create auth account
+      await createUserWithEmailAndPassword(auth,email,pwd);
+      // Add to Firestore
+      await addDoc(collection(db,'schools',school,'users'),{name,email,role});
+      alert('User added');
+      loadUsers();
+    };
+
+    // Initialize
+    loadUsers();
+    document.getElementById('btnLogout').onclick = ()=>{ sessionStorage.clear(); location='login.html'; };
+  </script>
+</body>
+</html>

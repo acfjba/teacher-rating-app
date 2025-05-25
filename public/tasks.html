@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TRA Platform - Tasks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Same tapa style */
+    body { background: linear-gradient(120deg,#e9e3d1 0%,#f0f2f5 100%); margin:0; display:flex; font-family:'Montserrat',sans-serif; min-height:100vh; }
+    .sidebar { width:220px; background:#fff; border-right:5px solid #934b13; border-radius:0 30px 30px 0; padding:2rem 1rem; display:flex; flex-direction:column; box-shadow:4px 0 24px #d3b07212; }
+    .tapa-logo { width:54px; margin-bottom:1.5rem; }
+    .sidebar a { display:block; padding:.8rem 1rem; margin-bottom:.5rem; color:#183fb3; font-weight:600; text-decoration:none; background:linear-gradient(90deg,#e9e3d1 60%,#f7f2ec); border-left:4px solid #934b13; border-radius:8px; transition:.2s; }
+    .sidebar a:hover, .sidebar a.active { background:linear-gradient(90deg,#eec77f 60%,#ffeed8); color:#a12828; border-left:6px solid #a12828; }
+    .main-content { flex:1; padding:2rem; }
+    h1 { font-size:2rem; color:#a12828; margin-bottom:1rem; }
+    .task-form, .task-table { background:#fff; padding:1.5rem; border-radius:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.07); margin-bottom:2rem; }
+    .form-group { margin-bottom:1rem; }
+    label { display:block; font-weight:600; margin-bottom:.5rem; }
+    input, textarea, select { width:100%; padding:.6rem; border:1px solid #c4a484; border-radius:.6rem; }
+    button { padding:.7rem 1.2rem; border:none; border-radius:.7rem; color:#fff; background:linear-gradient(90deg,#a12828 15%,#183fb3 85%); font-weight:bold; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:.8rem; border:1px solid #ddd; text-align:left; }
+    th { background:#f7f7f7; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="images/Tra Logo.png" class="tapa-logo" alt="TRA Logo" />
+    <a href="tasks.html" class="active">Tasks</a>
+    <a href="ratings.html">Ratings</a>
+    <a href="summaries.html">Summaries</a>
+    <!-- ...other links... -->
+    <button id="btnLogout" style="margin-top:auto;">Logout</button>
+  </div>
+  <div class="main-content">
+    <h1>Tasks Management</h1>
+    <!-- Task Submission Form for Teachers -->
+    <div class="task-form">
+      <h2>Submit Task</h2>
+      <div class="form-group">
+        <label>Date <span title="Select date for this task">?</span></label>
+        <input type="date" id="taskDate" />
+      </div>
+      <div class="form-group">
+        <label>Term & Week <span title="Choose term (1-3) and week (1-16)">?</span></label>
+        <select id="taskTerm">
+          <option value="1">Term 1</option>
+          <option value="2">Term 2</option>
+          <option value="3">Term 3</option>
+        </select>
+        <select id="taskWeek" style="margin-top:.5rem;">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+          <option value="14">14</option>
+          <option value="15">15</option>
+          <option value="16">16</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Task Description <span title="Describe the teaching task">?</span></label>
+        <textarea id="taskDesc" rows="3"></textarea>
+      </div>
+      <button id="btnSubmitTask">Submit Task</button>
+    </div>
+    <!-- Task Review Table for HODs & Head Teachers -->
+    <div class="task-table">
+      <h2>Pending Tasks for Review</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Term</th><th>Week No.</th><th>Description</th><th>Teacher</th><th>Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="taskList">
+          <!-- JS populates rows -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore, collection, addDoc, query, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    // Firebase configuration - ensure your API key is correct
+    const cfg = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      projectId: "teacherratingapp",
+      databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+      storageBucket: "teacherratingapp.appspot.com",
+      messagingSenderId: "114496602504",
+      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    const app = initializeApp(cfg), auth = getAuth(app), db = getFirestore(app);
+
+    // On load, ensure user is teacher or HOD
+    onAuthStateChanged(auth, user => {
+      if (!user) return location = 'login.html';
+      const role = sessionStorage.getItem('userRole') || '';
+      const allowed = ['teachers','hods','head teacher','high school admin','primary school admin'];
+      if (!allowed.includes(role.toLowerCase())) {
+        alert('Access denied');
+        return location = 'index.html';
+      }
+      loadTasks();
+    });
+
+    // Submit Task
+    document.getElementById('btnSubmitTask').onclick = async () => {
+      const date = document.getElementById('taskDate').value;
+      const term = document.getElementById('taskTerm').value;
+      const week = document.getElementById('taskWeek').value;
+      const desc = document.getElementById('taskDesc').value.trim();
+      if (!date || !desc) {
+        alert('Please fill in date and description.');
+        return;
+      }
+      const school = sessionStorage.getItem('userSchool');
+      await addDoc(collection(db,'schools',school,'tasks'), { date, term, week, desc, teacher: auth.currentUser.email, status: 'Submitted', timestamp: Date.now() });
+      alert('Task submitted');
+      location.reload();
+    };
+
+    // Load tasks for review
+    async function loadTasks() {
+      const school = sessionStorage.getItem('userSchool');
+      const q = query(collection(db,'schools',school,'tasks'), where('status','==','Submitted'));
+      const snap = await getDocs(q);
+      const tbody = document.getElementById('taskList');
+      snap.forEach(docSnap => {
+        const t = docSnap.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${t.date}</td>
+          <td>${t.term}</td>
+          <td>${t.week}</td>
+          <td>${t.desc}</td>
+          <td>${t.teacher}</td>
+          <td>${t.status}</td>
+          <td>
+            <button onclick="reviewTask('${docSnap.id}','Accepted')">Accept</button>
+            <button onclick="reviewTask('${docSnap.id}','Rejected')">Reject</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.reviewTask = async (id, decision) => {
+      const school = sessionStorage.getItem('userSchool');
+      await updateDoc(doc(db,'schools',school,'tasks',id), { status: decision, reviewBy: sessionStorage.getItem('userName') });
+      location.reload();
+    };
+  </script>
+</body>
+</html>

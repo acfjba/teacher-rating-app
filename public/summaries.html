@@ -3,171 +3,104 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TRA Platform – Summaries</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet" />
+  <title>TRA Platform - Summaries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    /* Base reset */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      font-family: 'Montserrat', Arial, sans-serif;
-      background: linear-gradient(120deg, #e9e3d1 0%, #f0f2f5 100%);
-    }
-    .container {
-      background: #fff;
-      border: 6px solid #934b13;
-      border-radius: 24px;
-      outline: 8px solid #eec77f;
-      outline-offset: 8px;
-      box-shadow: 0 6px 36px rgba(80,40,20,0.09);
-      width: 90vw;
-      max-width: 1000px;
-      padding: 2rem;
-      animation: fadein .7s ease-out;
-    }
-    @keyframes fadein { from { opacity: 0; transform: scale(.96);} to { opacity: 1; transform: scale(1);} }
-
-    .header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .header img { width: 48px; margin-right: 1rem; }
-    .header h1 { font-size: 1.8rem; color: #a12828; }
-
-    .nav {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .nav a {
-      padding: 0.6rem 1.2rem;
-      text-decoration: none;
-      font-weight: 600;
-      color: #fff;
-      background: linear-gradient(90deg, #a12828 15%, #183fb3 85%);
-      border-radius: 6px;
-      transition: opacity .2s;
-    }
-    .nav a.inactive { opacity: .6; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    th, td {
-      border: 1px solid #c4a484;
-      padding: 0.75rem;
-      text-align: left;
-      font-size: 0.95rem;
-    }
-    th {
-      background: #eec77f;
-      color: #432;
-    }
-    tbody tr:nth-child(even) { background: #faf7f2; }
-
-    #messageBox {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      padding: 0.8rem;
-      background: #dc2626;
-      color: #fff;
-      border-radius: 6px;
-      display: none;
-      font-weight: 600;
-    }
+    body { background: linear-gradient(120deg,#e9e3d1 0%,#f0f2f5 100%); margin:0; display:flex; font-family:'Montserrat',sans-serif; min-height:100vh; }
+    .sidebar { width:220px; background:#fff; border-right:5px solid #934b13; border-radius:0 30px 30px 0; padding:2rem 1rem; display:flex; flex-direction:column; box-shadow:4px 0 24px #d3b07212; }
+    .tapa-logo { width:54px; margin-bottom:1.5rem; }
+    .sidebar a { display:block; padding:.8rem 1rem; margin-bottom:.5rem; color:#183fb3; font-weight:600; text-decoration:none; background:linear-gradient(90deg,#e9e3d1 60%,#f7f2ec); border-left:4px solid #934b13; border-radius:8px; transition:.2s; }
+    .sidebar a:hover, .sidebar a.active { background:linear-gradient(90deg,#eec77f 60%,#ffeed8); color:#a12828; border-left:6px solid #a12828; }
+    .main-content { flex:1; padding:2rem; }
+    h1 { font-size:2rem; color:#a12828; margin-bottom:1rem; }
+    .summary-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+    .card { background:#fff; padding:1.2rem; border-radius:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.07); text-align:center; }
+    .card h3 { margin:0; font-size:1.2rem; color:#6a370f; }
+    .card p { margin:0.5rem 0 0; font-size:1.6rem; font-weight:bold; color:#183fb3; }
+    .detail-table { background:#fff; padding:1.5rem; border-radius:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:.8rem; border:1px solid #ddd; text-align:left; }
+    th { background:#f7f7f7; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="messageBox"></div>
-    <div class="header">
-      <img src="images/Tra Logo.png" alt="TRA Logo" />
-      <h1>Task Rating Summaries</h1>
-    </div>
-    <nav class="nav">
-      <a href="admin-dashboard.html">Overview</a>
-      <a href="users.html">Users</a>
-      <a href="tasks.html">Tasks</a>
-      <a href="summaries.html" class="inactive">Summaries</a>
-    </nav>
-    <table id="summariesTable">
-      <thead>
-        <tr>
-          <th>School ID</th>
-          <th>User ID</th>
-          <th>Term</th>
-          <th>Average Rating</th>
-          <th>Date Generated</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="5" style="text-align:center; color:#755217;">Loading...</td></tr>
-      </tbody>
-    </table>
+  <div class="sidebar">
+    <img src="images/Tra Logo.png" class="tapa-logo" alt="TRA Logo" />
+    <a href="tasks.html" id="nav-tasks">Tasks</a>
+    <a href="ratings.html" id="nav-ratings">Ratings</a>
+    <a href="summaries.html" class="active" id="nav-summaries">Summaries</a>
+    <a href="kpi-entry.html" id="nav-kpi">KPI</a>
+    <a href="library.html" id="nav-library">Library</a>
+    <a href="ohs-records.html" id="nav-ohs">OHS Records</a>
+    <a href="staff-records.html" id="nav-staff">Staff Records</a>
+    <a href="disciplinary.html" id="nav-disciplinary">Disciplinary</a>
+    <a href="user-management.html" id="nav-user">User Management</a>
+    <a href="email-invite.html" id="nav-invite">Email Invite</a>
+    <button id="btnLogout" style="margin-top:auto;">Logout</button>
   </div>
-
+  <div class="main-content">
+    <h1>Summaries</h1>
+    <div class="summary-cards">
+      <div class="card">
+        <h3>Total Tasks</h3><p id="sumTasks">0</p>
+      </div>
+      <div class="card">
+        <h3>Avg Rating</h3><p id="sumRating">0</p>
+      </div>
+      <div class="card">
+        <h3>Books Issued</h3><p id="sumLibrary">0</p>
+      </div>
+      <div class="card">
+        <h3>OHS Incidents</h3><p id="sumOhs">0</p>
+      </div>
+      <div class="card">
+        <h3>Disciplinary Cases</h3><p id="sumDisc">0</p>
+      </div>
+    </div>
+    <div class="detail-table">
+      <h2>Task Summary by Week</h2>
+      <table>
+        <thead><tr><th>Week</th><th>Submitted</th><th>Accepted</th><th>Rejected</th></tr></thead>
+        <tbody id="taskSummaryTable"></tbody>
+      </table>
+    </div>
+  </div>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
-      authDomain: "teacherratingapp.firebaseapp.com",
-      databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
-      projectId: "teacherratingapp",
-      storageBucket: "teacherratingapp.appspot.com",
-      messagingSenderId: "114496602504",
-      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const msgBox = document.getElementById('messageBox');
-    const tbody = document.querySelector('#summariesTable tbody');
-
-    function showMessage(msg) {
-      msgBox.textContent = msg;
-      msgBox.style.display = 'block';
-      setTimeout(() => msgBox.style.display = 'none', 3000);
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    const cfg = {/* firebase config */};
+    const app = initializeApp(cfg), auth = getAuth(app), db = getFirestore(app);
+    const school = sessionStorage.getItem('userSchool');
+    onAuthStateChanged(auth,u=>{ if(!u) return location='login.html'; loadSummaries(); });
+    async function loadSummaries(){
+      const tasksSnap = await getDocs(collection(db,'schools',school,'tasks'));
+      document.getElementById('sumTasks').innerText = tasksSnap.size;
+      const ratingsSnap = await getDocs(collection(db,'schools',school,'ratings'));
+      let total=0; ratingsSnap.forEach(d=> total+=Number(d.data().rating));
+      document.getElementById('sumRating').innerText = ratingsSnap.size? (total/ratingsSnap.size).toFixed(1): '0';
+      const libSnap = await getDocs(collection(db,'schools',school,'library'));
+      document.getElementById('sumLibrary').innerText = libSnap.size;
+      const ohsSnap = await getDocs(collection(db,'schools',school,'ohsRecords'));
+      document.getElementById('sumOhs').innerText = ohsSnap.size;
+      const discSnap = await getDocs(collection(db,'schools',school,'disciplinaryRecords'));
+      document.getElementById('sumDisc').innerText = discSnap.size;
+      const weeks = {};
+      tasksSnap.forEach(d=>{
+        const w=d.data().week; weeks[w]=weeks[w]||{sub:0,acc:0,rej:0}; weeks[w].sub++;
+        const s=d.data().status;
+        if(s==='Accepted') weeks[w].acc++;
+        if(s==='Rejected') weeks[w].rej++;
+      });
+      const tbody=document.getElementById('taskSummaryTable'); tbody.innerHTML='';
+      Object.keys(weeks).sort((a,b)=>a-b).forEach(w=>{
+        const r=weeks[w];
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${w}</td><td>${r.sub}</td><td>${r.acc}</td><td>${r.rej}</td>`;
+        tbody.appendChild(tr);
+      });
     }
-
-    async function loadSummaries() {
-      try {
-        const snap = await getDocs(collection(db, 'summaries'));        
-        tbody.innerHTML = ''; // clear loading row
-        snap.forEach(docSnap => {
-          const d = docSnap.data();
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${d.schoolId || '-'}</td>
-            <td>${d.userId || '-'}</td>
-            <td>${d.term || '-'}</td>
-            <td>${d.avgRating ?? '-'}</td>
-            <td>${d.generatedAt ? new Date(d.generatedAt.seconds*1000).toLocaleDateString() : '-'}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-        if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#755217;">No summaries found.</td></tr>';
-        }
-      } catch (e) {
-        showMessage('Failed to load summaries');
-        console.error(e);
-      }
-    }
-
-    onAuthStateChanged(auth, user => {
-      if (!user) return location.href='login.html';
-      loadSummaries();
-    });
+    document.getElementById('btnLogout').onclick=()=>{ signOut(auth); sessionStorage.clear(); location='login.html'; };
   </script>
 </body>
 </html>
