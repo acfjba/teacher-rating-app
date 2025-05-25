@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure Login – Teacher Rating App</title>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Masi_fonua_Tonga_tapa_cloth.jpg/1024px-Masi_fonua_Tonga_tapa_cloth.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .login-box {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h2 {
+      color: #800000;
+    }
+    input {
+      display: block;
+      width: 100%;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #800000;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    footer {
+      margin-top: 2rem;
+      color: #ddd;
+      font-size: 0.9rem;
+    }
+    #error {
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="login-box">
+      <h2>Teacher Rating Login</h2><p style='font-size: 0.95rem;'>Only authorized school staff may access this system.</p>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <p id="error"></p><p id="roleMessage" style="margin-top: 1rem; font-weight: bold; color: #006400;"></p>
+    </div>
+    <p style="margin-top:1rem;font-size:0.85rem;">By logging in, you agree this platform is for official school use only.</p><footer>
+      Created by Mr. Akhilesh Chandra – Ba, Fiji<br/>
+      📧 theitintelligence@yahoo.com | 📱 9942690
+    </footer>
+  </div>
+  <script type="module" src="scripts/login.js"></script>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) return;
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (snap.exists()) {
+        const role = snap.data().role;
+        const msg = document.getElementById("roleMessage");
+        if (role === "teacher") msg.innerText = "🎓 Logged in as Teacher.";
+        else if (role === "head") msg.innerText = "👩‍🏫 Logged in as Head Teacher.";
+        else if (role === "superadmin") msg.innerText = "👑 Logged in as Super Admin.";
+      }
+    });
+  </script>
+</body>
+</html>

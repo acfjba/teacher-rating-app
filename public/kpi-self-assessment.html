@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KPI Self-Assessment</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f5f5f5;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #800000;
+    }
+
+    .container {
+      background: white;
+      display: inline-block;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+      text-align: left;
+      width: 400px;
+    }
+
+    textarea, input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn {
+      background-color: #800000;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #a00000;
+    }
+
+    .message {
+      margin-top: 10px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>KPI Self-Assessment</h1>
+  <div class="container">
+    <label>Role Description:</label>
+    <textarea id="roleDesc" rows="3"></textarea>
+
+    <label>Activities Performed:</label>
+    <textarea id="activities" rows="3"></textarea>
+
+    <label>Your Comments:</label>
+    <textarea id="comments" rows="3"></textarea>
+
+    <label>Self Rating (1–10):</label>
+    <input type="number" id="rating" min="1" max="10" />
+
+    <button class="btn" onclick="submitKPI()">Submit</button>
+
+    <div class="message" id="statusMsg"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      // Add your Firebase config here
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function submitKPI() {
+      const roleDesc = document.getElementById("roleDesc").value;
+      const activities = document.getElementById("activities").value;
+      const comments = document.getElementById("comments").value;
+      const rating = parseInt(document.getElementById("rating").value);
+
+      if (!roleDesc || !activities || !comments || !rating || rating < 1 || rating > 10) {
+        alert("Please fill in all fields correctly.");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "kpi_assessments"), {
+          roleDesc,
+          activities,
+          comments,
+          rating,
+          schoolId: "school-xyz", // Replace or fetch dynamically
+          user: "headteacher-abc", // Replace with logged-in user info
+          timestamp: serverTimestamp()
+        });
+
+        document.getElementById("statusMsg").textContent = "KPI Submitted Successfully!";
+      } catch (e) {
+        console.error("Error submitting KPI:", e);
+        alert("Failed to submit KPI.");
+      }
+    }
+  </script>
+</body>
+</html>

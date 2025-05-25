@@ -1,0 +1,19 @@
+
+Subject: You're Invited to Join the Teacher Rating App
+
+Bula!
+
+You've been invited to register for the Teacher Rating App – a digital platform designed for weekly task tracking and Head Teacher evaluations in Fijian primary schools.
+
+Please use the link below to complete your registration:
+https://teacherratingapp.web.app/register.html?invite=teacher
+
+If you were invited as a Head Teacher or Admin, use the appropriate invite code:
+  - Head Teacher: https://teacherratingapp.web.app/register.html?invite=head
+  - Super Admin: https://teacherratingapp.web.app/register.html?invite=superadmin
+
+Vinaka vakalevu,
+Mr. Akhilesh Chandra
+IT Intelligence, Ba Fiji
+Email: theitintelligence@yahoo.com
+Mobile: 9942690

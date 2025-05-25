@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "teacherratingapp"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

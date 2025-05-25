@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>School Info</title>
+  <style>
+    body { font-family: Arial; background: #f0f0f0; padding: 20px; }
+    h2 { background-color: #800000; color: white; padding: 10px; }
+    .section { background: white; padding: 15px; border-radius: 8px; margin-top: 20px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    input, button { display: block; margin-top: 10px; padding: 10px; width: 100%; max-width: 500px; }
+    iframe { width: 100%; height: 300px; margin-top: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h2>🏫 School Information</h2>
+  <div class="section">
+    <label>School Name:</label>
+    <input type="text" id="schoolName" />
+    <label>Address:</label>
+    <input type="text" id="schoolAddress" />
+    <button onclick="saveInfo()">💾 Save Info</button>
+    <p id="msg"></p>
+    <iframe id="mapFrame" loading="lazy"></iframe>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const schoolDocRef = doc(db, "school_info", "main");
+
+    const nameInput = document.getElementById("schoolName");
+    const addrInput = document.getElementById("schoolAddress");
+    const mapFrame = document.getElementById("mapFrame");
+    const msg = document.getElementById("msg");
+
+    async function loadSchoolInfo() {
+      const snap = await getDoc(schoolDocRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        nameInput.value = data.name || "";
+        addrInput.value = data.address || "";
+        mapFrame.src = "https://www.google.com/maps?q=" + encodeURIComponent(data.address || "") + "&output=embed";
+      }
+    }
+
+    window.saveInfo = async function () {
+      const name = nameInput.value.trim();
+      const address = addrInput.value.trim();
+      if (!name || !address) return alert("Please enter both name and address.");
+
+      await setDoc(schoolDocRef, { name, address });
+      msg.textContent = "✅ School info saved!";
+      mapFrame.src = "https://www.google.com/maps?q=" + encodeURIComponent(address) + "&output=embed";
+    };
+
+    loadSchoolInfo();
+  </script>
+</body>
+</html>

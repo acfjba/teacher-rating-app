@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gallery - Head Teacher</title>
+  <style>
+    body { font-family: Arial; background: #f5f5f5; padding: 20px; }
+    h2 { background-color: #800000; color: white; padding: 10px; }
+    .section { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); margin-top: 20px; }
+    .gallery-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .gallery-grid img { width: 200px; height: auto; border: 1px solid #ccc; border-radius: 5px; }
+    button, input { margin-top: 10px; padding: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h2>🖼️ School Gallery</h2>
+
+  <div class="section">
+    <input type="file" id="imageFile" accept="image/*" />
+    <button onclick="uploadImage()">Upload</button>
+    <p id="uploadMsg"></p>
+    <div class="gallery-grid" id="gallery"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+    const galleryRef = ref(storage, "gallery");
+    const galleryEl = document.getElementById("gallery");
+
+    async function loadGallery() {
+      const result = await listAll(galleryRef);
+      galleryEl.innerHTML = "";
+      for (const itemRef of result.items) {
+        const url = await getDownloadURL(itemRef);
+        const img = document.createElement("img");
+        img.src = url;
+        galleryEl.appendChild(img);
+      }
+    }
+
+    window.uploadImage = async function () {
+      const fileInput = document.getElementById("imageFile");
+      const file = fileInput.files[0];
+      if (!file) return alert("Please select an image to upload.");
+      const fileRef = ref(storage, "gallery/" + file.name);
+      await uploadBytes(fileRef, file);
+      document.getElementById("uploadMsg").textContent = "✅ Image uploaded!";
+      loadGallery();
+    };
+
+    loadGallery();
+  </script>
+</body>
+</html>

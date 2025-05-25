@@ -2,114 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TRA Platform - Email Invite</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <title>Email Invite - Admin/Headteacher</title>
   <style>
-    body { background: linear-gradient(120deg,#e9e3d1 0%,#f0f2f5 100%); margin:0; display:flex; font-family:'Montserrat',sans-serif; min-height:100vh; }
-    .sidebar { width:220px; background:#fff; border-right:5px solid #934b13; border-radius:0 30px 30px 0; padding:2rem 1rem; display:flex; flex-direction:column; box-shadow:4px 0 24px #d3b07212; }
-    .tapa-logo { width:54px; margin-bottom:1.5rem; }
-    .sidebar a { display:block; padding:.8rem 1rem; margin-bottom:.5rem; color:#183fb3; font-weight:600; text-decoration:none; background:linear-gradient(90deg,#e9e3d1 60%,#f7f2ec); border-left:4px solid #934b13; border-radius:8px; transition:.2s; }
-    .sidebar a:hover, .sidebar a.active { background:linear-gradient(90deg,#eec77f 60%,#ffeed8); color:#a12828; border-left:6px solid #a12828; }
-    .main-content { flex:1; padding:2rem; }
-    h1 { font-size:2rem; color:#a12828; margin-bottom:1rem; }
-    .invite-form, .invite-table { background:#fff; padding:1.5rem; border-radius:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.07); margin-bottom:2rem; }
-    .form-group { margin-bottom:1rem; }
-    label { display:block; font-weight:600; margin-bottom:.5rem; }
-    input, select { width:100%; padding:.6rem; border:1px solid #c4a484; border-radius:.6rem; }
-    button { padding:.7rem 1.2rem; border:none; border-radius:.7rem; color:#fff; background:linear-gradient(90deg,#a12828 15%,#183fb3 85%); font-weight:bold; cursor:pointer; }
-    table { width:100%; border-collapse:collapse; }
-    th, td { padding:.8rem; border:1px solid #ddd; text-align:left; }
-    th { background:#f7f7f7; }
+    body {
+      background-color: #1c1c1c;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #FFD700;
+      margin-bottom: 20px;
+    }
+
+    form {
+      max-width: 400px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      background-color: maroon;
+      color: white;
+      cursor: pointer;
+    }
+
+    #status {
+      color: #00FF00;
+      margin-top: 10px;
+    }
+
+    #error {
+      color: #FF4444;
+    }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <img src="images/Tra Logo.png" class="tapa-logo" alt="TRA Logo" />
-    <a href="tasks.html" id="nav-tasks">Tasks</a>
-    <a href="ratings.html" id="nav-ratings">Ratings</a>
-    <a href="summaries.html" id="nav-summaries">Summaries</a>
-    <a href="kpi-entry.html" id="nav-kpi">KPI</a>
-    <a href="library.html" id="nav-library">Library</a>
-    <a href="ohs-records.html" id="nav-ohs">OHS Records</a>
-    <a href="staff-records.html" id="nav-staff">Staff Records</a>
-    <a href="disciplinary.html" id="nav-disciplinary">Disciplinary</a>
-    <a href="user-management.html" id="nav-user">User Management</a>
-    <a href="email-invite.html" class="active" id="nav-invite">Email Invite</a>
-    <button id="btnLogout" style="margin-top:auto;">Logout</button>
-  </div>
-  <div class="main-content">
-    <h1>Email Invite</h1>
-    <div class="invite-form">
-      <h2>Send Invitation</h2>
-      <div class="form-group">
-        <label for="inviteSchool">School ID <span title="Leave blank for system-wide invite (admin)">?</span></label>
-        <input id="inviteSchool" type="text" placeholder="e.g. HS123" />
-      </div>
-      <div class="form-group">
-        <label for="inviteEmail">Email Address</label>
-        <input id="inviteEmail" type="email" placeholder="user@school.edu" required />
-      </div>
-      <div class="form-group">
-        <label for="inviteRole">Role</label>
-        <select id="inviteRole">
-          <option value="teachers">Teacher</option>
-          <option value="hods">HOD</option>
-          <option value="head teacher">Head Teacher</option>
-          <option value="assistant principal">Assistant Principal</option>
-          <option value="vice principal">Vice Principal</option>
-          <option value="principal">Principal</option>
-          <option value="librarian">Librarian</option>
-          <option value="staff">Staff</option>
-        </select>
-      </div>
-      <button id="btnSendInvite">Send Invite</button>
-    </div>
-    <div class="invite-table">
-      <h2>Pending Invites</h2>
-      <table>
-        <thead>
-          <tr><th>School ID</th><th>Email</th><th>Role</th><th>Sent At</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="inviteList"></tbody>
-      </table>
-    </div>
-  </div>
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-    const cfg={/*firebase config*/}; const app=initializeApp(cfg), auth=getAuth(app), db=getFirestore(app);
-    const globalAdmin = sessionStorage.getItem('userRole')==='admin';
-    onAuthStateChanged(auth,u=>{ if(!u) return location='login.html'; loadInvites(); });
-    document.getElementById('btnSendInvite').onclick=async()=>{
-      const school=document.getElementById('inviteSchool').value.trim();
-      const email=document.getElementById('inviteEmail').value.trim();
-      const role=document.getElementById('inviteRole').value;
-      if(!email||!role) return alert('Email and role required');
-      const path = school? ['schools',school,'invites'] : ['invites'];
-      const colRef = collection(db,...path);
-      await addDoc(colRef,{email,role,createdAt:serverTimestamp(),sender:auth.currentUser.email});
-      alert('Invite sent'); loadInvites();
-    };
-    async function loadInvites(){
-      const tbody=document.getElementById('inviteList'); tbody.innerHTML='';
-      let snap;
-      if(globalAdmin) snap=await getDocs(collection(db,'invites')); // system invites
-      const school=document.getElementById('inviteSchool').value.trim()||sessionStorage.getItem('userSchool');
-      const schoolSnap=await getDocs(collection(db,'schools',school,'invites'));
-      const all=[...(globalAdmin?snap.docs:[]),...schoolSnap.docs];
-      all.forEach(d=>{ const r=d.data();
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${r.school||school||'Global'}</td><td>${r.email}</td><td>${r.role}</td><td>${r.createdAt?.toDate().toLocaleString()||''}</td><td><button onclick="deleteInvite('${d.id}','${r.school||''}')">Delete</button></td>`;
-        tbody.appendChild(tr);
-      });
-    }
-    window.deleteInvite=async(id,sch)=>{
-      const path=sch? ['schools',sch,'invites'] : ['invites'];
-      await deleteDoc(doc(db,...path,id)); loadInvites();
-    };
-    document.getElementById('btnLogout').onclick=()=>{ signOut(auth); sessionStorage.clear(); location='login.html'; };
-  </script>
+
+  <h1>📤 Send User Invite</h1>
+
+  <form id="inviteForm">
+    <input type="text" id="schoolID" placeholder="School ID" required />
+    <input type="email" id="email" placeholder="User Email" required />
+    <select id="role">
+      <option value="teacher">Teacher</option>
+      <option value="headteacher">Headteacher</option>
+    </select>
+    <button type="submit">Send Invite</button>
+  </form>
+
+  <div id="status"></div>
+  <div id="error"></div>
+
+<script type="module" src="./invite.js"></script>
 </body>
 </html>
