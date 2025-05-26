@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Headteacher Dashboard</title>
+  <style>
+    body {
+      background-color: #2c3e50;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #FFD700;
+      font-size: 40px;
+    }
+
+    h2 {
+      color: #ecf0f1;
+      margin-top: 40px;
+    }
+
+    .button {
+      padding: 12px 24px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .add-btn { background-color: maroon; color: white; }
+    .kpi-btn { background-color: #27ae60; color: white; }
+    .logout-btn { background-color: #2980b9; color: white; }
+    .refresh-btn { background-color: #8e44ad; color: white; }
+    .invite-btn { background-color: #f39c12; color: white; }
+    .rate-btn { background-color: #e74c3c; color: white; }
+    .summary-btn { background-color: #16a085; color: white; }
+    .view-btn { background-color: #9b59b6; color: white; }
+
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: white;
+      color: #333;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: maroon;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📘 Headteacher Dashboard</h1>
+
+  <div>
+    <button class="button add-btn" onclick="document.getElementById('staffModal').style.display='block'">➕ Add Staff</button>
+    <button class="button kpi-btn" onclick="location.href='kpi-self-assessment.html'">📊 KPI</button>
+    <button class="button rate-btn" onclick="location.href='rate-tasks.html'">📝 Rate Tasks</button>
+    <button class="button summary-btn" onclick="location.href='rating-summary.html'">📈 Rating Summary</button>
+    <button class="button invite-btn" onclick="location.href='email-invite.html'">📩 Send Invite</button>
+    <button class="button view-btn" onclick="location.href='view-invites.html'">👁️ View Invites</button>
+    <button class="button refresh-btn" onclick="location.reload()">🔁 Refresh</button>
+    <button class="button logout-btn" onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <h2>🔐 Pending Password Reset Requests</h2>
+  <table>
+    <thead>
+      <tr><th>School ID</th><th>Email</th><th>Requested At</th></tr>
+    </thead>
+    <tbody id="resetTable"></tbody>
+  </table>
+
+  <h2>📈 Term Summary: Teacher Ratings</h2>
+  <table>
+    <thead>
+      <tr><th>Teacher Email</th><th>Weeks Rated</th><th>Average Rating</th></tr>
+    </thead>
+    <tbody id="summaryTable"></tbody>
+  </table>
+
+  <!-- Staff Modal -->
+  <div id="staffModal" style="display:none;">
+    <div style="background:#34495e; padding:30px; border-radius:10px; width:90%; max-width:500px; margin:auto;">
+      <h2 style="color:#FFD700;">Add Staff Record</h2>
+      <form id="staffRecordForm">
+        <input type="text" id="tpfNumber" placeholder="TPF Number" required>
+        <input type="text" id="role" placeholder="Role" required>
+        <input type="text" id="qualification" placeholder="Qualification" required>
+        <input type="number" id="yearsTeaching" placeholder="Years of Teaching" required>
+        <input type="number" id="age" placeholder="Age" required>
+        <input type="number" id="schoolsTaught" placeholder="Schools Taught" required>
+        <textarea id="pastSchools" placeholder="Past Schools" required></textarea>
+        <textarea id="presentSchools" placeholder="Present Schools" required></textarea>
+        <textarea id="futureSchools" placeholder="Future Schools" required></textarea>
+        <button type="submit" class="button kpi-btn">Submit</button>
+        <button type="button" class="button logout-btn" onclick="document.getElementById('staffModal').style.display='none'">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./headTeacherDashboard.js"></script>
+</body>
+</html>

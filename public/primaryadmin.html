@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Primary-School Admin – Teacher Rating App</title>
+  <!-- ——— TAP-A global theme ——— -->
+  <style>
+    :root {
+      --bg: #2c3e50;
+      --bg-card: #34495e;
+      --accent: #9c6427;
+      --text-light: #ecf0f1;
+      --border-radius: 12px;
+      --btn: maroon;
+      --btn-hover: #a00000;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /******** Sidebar ********/
+    .sidebar {
+      width: 250px;
+      background: var(--accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 0;
+    }
+    .logo { width: 130px; margin-bottom: 10px; }
+    .side-title { font-size: 20px; font-weight: 600; margin-bottom: 26px; text-align:center; }
+    .nav-link {
+      width: 100%;
+      text-align: left;
+      padding: 14px 22px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .25s;
+    }
+    .nav-link:hover, .nav-link.active { background: rgba(0,0,0,0.15); }
+    .logout { margin-top: auto; background: var(--btn); }
+
+    /******** Main ********/
+    main { flex: 1; padding: 28px 36px; overflow-y:auto; }
+    h1 { margin: 0 0 18px; font-size: 30px; color:#FFD700; }
+
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:26px; }
+    .action { flex:1 0 160px; padding:14px 16px; border:none; border-radius:var(--border-radius); font-size:14px; cursor:pointer; color:#fff; transition:filter .2s; }
+    .task { background:#e67e22; }
+    .rating { background:#16a085; }
+    .summary { background:#2980b9; }
+    .users { background:#27ae60; }
+    .action:hover { filter:brightness(1.1); }
+
+    /* Card & table */
+    .card { background:var(--bg-card); border-radius:var(--border-radius); padding:18px; box-shadow:0 0 12px rgba(0,0,0,0.4); }
+    table { width:100%; border-collapse:collapse; background:#fff; color:#333; border-radius:var(--border-radius); overflow:hidden; }
+    th,td { padding:10px 14px; border-bottom:1px solid #ccc; }
+    th { background:var(--btn); color:#fff; text-align:left; }
+    tr:nth-child(even){ background:#f5f5f5; }
+  </style>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <!-- ——— Sidebar ——— -->
+  <aside class="sidebar">
+    <img src="images/tra-logo.png" class="logo" alt="TRA Logo" />
+    <div class="side-title">Primary Admin</div>
+
+    <button class="nav-link active" onclick="nav('dashboard')">🏠 Dashboard</button>
+    <button class="nav-link" onclick="nav('tasks')">📝 Tasks</button>
+    <button class="nav-link" onclick="nav('ratings')">⭐ Ratings</button>
+    <button class="nav-link" onclick="nav('summary')">📊 Summaries</button>
+    <button class="nav-link" onclick="nav('users')">👥 Users</button>
+
+    <button class="nav-link logout" onclick="logout()">🚪 Logout</button>
+  </aside>
+
+  <!-- ——— Main ——— -->
+  <main id="main">
+    <h1>🏠 Dashboard</h1>
+    <div class="actions">
+      <button class="action task" onclick="nav('tasks')">View Tasks</button>
+      <button class="action rating" onclick="nav('ratings')">Submit Ratings</button>
+      <button class="action summary" onclick="nav('summary')">View Summaries</button>
+      <button class="action users" onclick="nav('users')">Manage Users</button>
+    </div>
+    <div id="content"></div>
+  </main>
+
+  <script type="module">
+    /* Firebase init (reuse same config) */
+    const firebaseConfig={
+      apiKey:"AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain:"teacherratingapp.firebaseapp.com",
+      databaseURL:"https://teacherratingapp-default-rtdb.firebaseio.com",
+      projectId:"teacherratingapp",
+      storageBucket:"teacherratingapp.appspot.com",
+      messagingSenderId:"114496602504",
+      appId:"1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth=firebase.auth();
+    const db=firebase.firestore();
+
+    /* Auth guard: primaryAdmin role only */
+    auth.onAuthStateChanged(async user=>{
+      if(!user) return window.location.href='login.html';
+      const snap=await db.doc(`users/${user.uid}`).get();
+      if(!snap.exists||snap.data().role!=='primaryAdmin'){
+        alert('Access denied – not Primary Admin');
+        return auth.signOut();
+      }
+      nav('dashboard');
+    });
+
+    /* Navigation */
+    const links=document.querySelectorAll('.nav-link');
+    const content=document.getElementById('content');
+    function nav(key){
+      links.forEach(l=>l.classList.remove('active'));
+      if(event?.currentTarget) event.currentTarget.classList.add('active');
+      const h1=document.querySelector('main h1');
+      content.innerHTML='';
+      switch(key){
+        case 'tasks':
+          h1.textContent='📝 Tasks';
+          loadTasks();
+          break;
+        case 'ratings':
+          h1.textContent='⭐ Ratings';
+          content.innerHTML='<p>(Rating UI coming soon…)</p>';
+          break;
+        case 'summary':
+          h1.textContent='📊 Summaries';
+          content.innerHTML='<p>(Summary view coming soon…)</p>';
+          break;
+        case 'users':
+          h1.textContent='👥 Users';
+          loadUsers();
+          break;
+        default:
+          h1.textContent='🏠 Dashboard';
+          content.innerHTML='<p>Welcome, Primary-School Admin. Use the quick actions to manage tasks, ratings and users.</p>';
+      }
+    }
+
+    /* Task table loader (primary-school only) */
+    async function loadTasks(){
+      const card=document.createElement('div');
+      card.className='card';
+      card.innerHTML='<h3 style="margin-top:0;">Active Tasks</h3><table><thead><tr><th>Title</th><th>Due</th><th>Status</th></tr></thead><tbody id="taskBody"><tr><td colspan="3">Loading…</td></tr></tbody></table>';
+      content.appendChild(card);
+      const uid=auth.currentUser.uid;
+      const adminDoc=await db.doc(`users/${uid}`).get();
+      const schoolId=adminDoc.data().schoolId;
+      const snap=await db.collection('tasks').where('schoolId','==',schoolId).orderBy('dueDate').get();
+      const body=document.getElementById('taskBody');
+      body.innerHTML='';
+      snap.forEach(doc=>{
+        const d=doc.data();
+        const tr=document.createElement('tr');
+        const due=new Date(d.dueDate?.seconds*1000||Date.now()).toLocaleDateString();
+        tr.innerHTML=`<td>${d.title||''}</td><td>${due}</td><td>${d.status||''}</td>`;
+        body.appendChild(tr);
+      });
+      if(!body.children.length) body.innerHTML='<tr><td colspan="3">No tasks yet.</td></tr>';
+    }
+
+    /* Users table loader (teachers + headteachers for this primary school) */
+    async function loadUsers(){
+      const card=document.createElement('div');
+      card.className='card';
+      card.innerHTML='<h3 style="margin-top:0;">School Users</h3><table><thead><tr><th>Name</th><th>Role</th><th>Email</th></tr></thead><tbody id="uBody"><tr><td colspan="3">Loading…</td></tr></tbody></table>';
+      content.appendChild(card);
+      const schoolId=(await db.doc(`users/${auth.currentUser.uid}`).get()).data().schoolId;
+      const snap=await db.collection('users').where('schoolId','==',schoolId).get();
+      const b=document.getElementById('uBody'

@@ -1,0 +1,33 @@
+body.login-gradient {
+  background: linear-gradient(135deg, #f7f4e9 0%, #e6dccf 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+.tapa-border {
+  border: 8px solid #9c6427;
+  border-radius: 12px;
+  background: #f8f4e3;
+}
+.login-box {
+  width: 320px;
+}
+.btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.tabs { display: flex; }
+.tab { flex: 1; padding: 8px; cursor: pointer; }
+.tab.active { background: #e6dccf; font-weight: bold; }
+.hidden { display: none; }
+.nav-link { margin-right: 16px; color: #3e3e3e; text-decoration: none; }
+.nav-link.active { text-decoration: underline; }
+.table-header { background: #e6dccf; padding: 8px; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
