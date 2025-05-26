@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rating Summary</title>
+  <style>
+    body { font-family: Arial; background: #f8f8f8; padding: 20px; }
+    h2 { background-color: #800000; color: white; padding: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h2>📊 Rating Summary: Term 1, 2, 3 & Year Total</h2>
+  <table id="summaryTable">
+    <thead>
+      <tr><th>Teacher</th><th>Term 1</th><th>Term 2</th><th>Term 3</th><th>Year Total</th></tr>
+    </thead>
+    <tbody><tr><td colspan="5">Loading...</td></tr></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const summaryTable = document.querySelector("#summaryTable tbody");
+
+    async function summarizeRatings() {
+      const ratingsSnap = await getDocs(collection(db, "ratings"));
+      const teacherRatings = {};
+
+      ratingsSnap.forEach(doc => {
+        const data = doc.data();
+        const teacher = data.TeacherName || doc.id.split('_')[0];
+        const term = data.Term;
+        const score = parseInt(data.Score);
+
+        if (!teacherRatings[teacher]) {
+          teacherRatings[teacher] = { t1: 0, t2: 0, t3: 0, total: 0 };
+        }
+
+        if (term == 1) teacherRatings[teacher].t1 += score;
+        if (term == 2) teacherRatings[teacher].t2 += score;
+        if (term == 3) teacherRatings[teacher].t3 += score;
+
+        teacherRatings[teacher].total += score;
+      });
+
+      summaryTable.innerHTML = "";
+
+      for (const [teacher, summary] of Object.entries(teacherRatings)) {
+        const row = `<tr>
+          <td>${teacher}</td>
+          <td>${summary.t1}</td>
+          <td>${summary.t2}</td>
+          <td>${summary.t3}</td>
+          <td>${summary.total}</td>
+        </tr>`;
+        summaryTable.innerHTML += row;
+      }
+
+      if (summaryTable.innerHTML === "") {
+        summaryTable.innerHTML = "<tr><td colspan='5'>No ratings found.</td></tr>";
+      }
+    }
+
+    summarizeRatings();
+  </script>
+</body>
+</html>

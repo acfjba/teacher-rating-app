@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Staff Records</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    body { font-family: Arial; background: #f5f5f5; padding: 20px; }
+    .form-box { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #aaa; }
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    button { padding: 10px 20px; background: #800000; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>Enter Staff Record</h2>
+    <form id="staffForm">
+      <input type="text" id="tpfNumber" placeholder="TPF Number" required />
+      <input type="text" id="role" placeholder="Role(s)" required />
+      <input type="text" id="qualification" placeholder="Qualification" required />
+      <input type="number" id="yearsTeaching" placeholder="Years of Teaching" required />
+      <input type="number" id="age" placeholder="Age" required />
+      <input type="number" id="schoolsTaught" placeholder="Number of Schools Taught" required />
+      <textarea id="schoolHistory" placeholder="Past / Present / Future Schools" required></textarea>
+      <button type="submit">Submit</button>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const db = firebase.firestore();
+
+    document.getElementById('staffForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const data = {
+        tpfNumber: document.getElementById('tpfNumber').value,
+        role: document.getElementById('role').value,
+        qualification: document.getElementById('qualification').value,
+        yearsTeaching: parseInt(document.getElementById('yearsTeaching').value),
+        age: parseInt(document.getElementById('age').value),
+        schoolsTaught: parseInt(document.getElementById('schoolsTaught').value),
+        schoolHistory: document.getElementById('schoolHistory').value,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      // Example path: "schools/SCHOOL_ID/staff/TPF12345"
+      const schoolId = localStorage.getItem('schoolId') || 'demo-school';
+
+      db.collection('schools').doc(schoolId).collection('staff').doc(data.tpfNumber).set(data)
+        .then(() => {
+          document.getElementById('message').innerText = "✅ Staff record saved.";
+          document.getElementById('staffForm').reset();
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('message').innerText = "❌ Error saving staff record.";
+        });
+    });
+  </script>
+</body>
+</html>

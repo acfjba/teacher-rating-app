@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure Registration – Teacher Rating App</title>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Masi_fonua_Tonga_tapa_cloth.jpg/1024px-Masi_fonua_Tonga_tapa_cloth.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .login-box {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h2 {
+      color: #800000;
+    }
+    input {
+      display: block;
+      width: 100%;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #800000;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    footer {
+      margin-top: 2rem;
+      color: #ddd;
+      font-size: 0.9rem;
+    }
+    #error {
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="login-box">
+      <p id="inviteMsg" style="font-size: 0.95rem; color: #333;"></p>
+      <h2>Teacher Rating Registration</h2><p style='font-size: 0.95rem;'>Only invited school staff should proceed with registration.</p>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="register()">Register</button>
+      <p id="error"
+      style="color: red;"></p>
+    </div>
+    <p style="margin-top:1rem;font-size:0.85rem;">By registering, you confirm your invitation and school staff role.</p><footer>
+      Created by Mr. Akhilesh Chandra – Ba, Fiji<br/>
+      📧 theitintelligence@yahoo.com | 📱 9942690
+    </footer>
+  </div>
+  <script type="module" src="scripts/register.js"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const invite = params.get('invite');
+    const inviteMsg = document.getElementById("inviteMsg");
+    if (invite === "teacher") {
+      inviteMsg.innerText = "🎓 You’ve been invited to register as a Teacher.";
+    } else if (invite === "head") {
+      inviteMsg.innerText = "👩‍🏫 You’ve been invited to register as a Head Teacher.";
+    } else if (invite === "superadmin") {
+      inviteMsg.innerText = "👑 You’ve been invited to register as a Super Admin.";
+    } else {
+      inviteMsg.innerText = "⚠️ No invite code detected. You may not be able to register.";
+    }
+  </script>
+</body>
+</html>
