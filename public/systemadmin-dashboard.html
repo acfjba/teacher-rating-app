@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System‑Admin Dashboard – Teacher Rating App</title>
+  <!-- ---- Global TAP‑A Theme ---- -->
+  <style>
+    :root {
+      --bg: #2c3e50;
+      --bg-card: #34495e;
+      --accent: #9c6427; /* tapa brown */
+      --text-light: #ecf0f1;
+      --border-radius: 12px;
+      --btn: maroon;
+      --btn-hover: #a00000;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /******** Sidebar ********/
+    .sidebar {
+      width: 260px;
+      background: var(--accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 0;
+    }
+    .logo {
+      width: 140px;
+      margin-bottom: 12px;
+    }
+    .side-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .nav-link {
+      width: 100%;
+      text-align: left;
+      padding: 14px 24px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+    .nav-link:hover,
+    .nav-link.active { background: rgba(0,0,0,0.15); }
+    .logout {
+      margin-top: auto;
+      background: var(--btn);
+    }
+
+    /******** Main Panel ********/
+    main {
+      flex: 1;
+      padding: 30px 40px;
+      overflow-y: auto;
+    }
+    h1 {
+      margin: 0 0 20px;
+      font-size: 32px;
+      color: #FFD700;
+    }
+    /* quick-action buttons */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .action-btn {
+      flex: 1 0 180px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 15px;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    .inv { background:#f39c12; }
+    .summ { background:#16a085; }
+    .logs { background:#34495e; }
+    .users { background:#27ae60; }
+    .ht { background:#e67e22; }
+    .teach { background:maroon; }
+    .action-btn:hover { filter: brightness(1.1); }
+
+    /******** Table ********/
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--border-radius);
+      padding: 18px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.4);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      color: #333;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #ccc;
+    }
+    th {
+      background: var(--btn);
+      color: #fff;
+      text-align: left;
+    }
+    tr:nth-child(even) { background: #f5f5f5; }
+  </style>
+  <!-- Firebase libs -->
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <img src="images/tra-logo.png" alt="TRA Logo" class="logo" />
+    <div class="side-title">System‑Admin</div>
+
+    <button class="nav-link active" onclick="setSection('overview')">🏠 Dashboard</button>
+    <button class="nav-link" onclick="setSection('users')">👥 All Users</button>
+    <button class="nav-link" onclick="setSection('invites')">📩 Invites</button>
+    <button class="nav-link" onclick="setSection('summary')">📊 Rating Summary</button>
+    <button class="nav-link" onclick="setSection('logs')">📈 Logs</button>
+
+    <button class="nav-link logout" onclick="logout()">🚪 Logout</button>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main id="main">
+    <h1>🏠 Dashboard</h1>
+
+    <!-- Quick actions -->
+    <div class="actions">
+      <button class="action-btn users" onclick="setSection('users')">View Users</button>
+      <button class="action-btn inv" onclick="setSection('invites')">Send Invite</button>
+      <button class="action-btn summ" onclick="setSection('summary')">Rating Summary</button>
+      <button class="action-btn logs" onclick="setSection('logs')">View Logs</button>
+    </div>
+
+    <!-- Dynamic content container -->
+    <div id="content"></div>
+  </main>
+
+  <script type="module">
+    /***** Firebase Init *****/
+    const firebaseConfig = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+      projectId: "teacherratingapp",
+      storageBucket: "teacherratingapp.appspot.com",
+      messagingSenderId: "114496602504",
+      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    /***** Auth guard – allow only systemAdmin *****/
+    auth.onAuthStateChanged(async user => {
+      if (!user) return window.location.href = 'login.html';
+      const snap = await db.doc(`users/${user.uid}`).get();
+      if (!snap.exists || snap.data().role !== 'systemAdmin') {
+        alert('Access denied – not a System Admin');
+        return auth.signOut();
+      }
+      // preload default section
+      setSection('overview');
+    });
+
+    /***** UI helpers *****/
+    const navLinks = document.querySelectorAll('.nav-link');
+    function setSection(key) {
+      navLinks.forEach(b => b.classList.remove('active'));
+      // highlight clicked when called via UI button
+      const caller = event?.currentTarget;
+      if (caller) caller.classList.add('active');
+
+      const h1 = document.querySelector('main h1');
+      const content = document.getElementById('content');
+      content.innerHTML = '';
+
+      switch (key) {
+        case 'users':
+          h1.textContent = '👥 All Users';
+          loadUsers(content);
+          break;
+        case 'invites':
+          h1.textContent = '📩 Invites';
+          loadInvites(content);
+          break;
+        case 'summary':
+          h1.textContent = '📊 Rating Summary';
+          // TODO summary loader
+          content.innerHTML = '<p style="opacity:.8;">(Summary view coming soon…)</p>';
+          break;
+        case 'logs':
+          h1.textContent = '📈 Logs';
+          // TODO logs loader
+          content.innerHTML = '<p style="opacity:.8;">(Logs view coming soon…)</p>';
+          break;
+        default:
+          h1.textContent = '🏠 Dashboard';
+          content.innerHTML = '<p>Welcome, System‑Admin! Use the quick‑action buttons or sidebar to manage the platform.</p>';
+      }
+    }
+
+    /***** Load Users table *****/
+    async function loadUsers(container) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h3 style="margin-top:0;">User Directory</h3>
+        <table id="userTable"><thead><tr>
+          <th>Name</th><th>Email</th><th>Role</th><th>School ID</th>
+        </tr></thead><tbody></tbody></table>`;
+      container.appendChild(card);
+
+      const tbody = card.querySelector('tbody');
+      tbody.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
+
+      const snap = await db.collection('users').orderBy('name').get();
+      tbody.innerHTML = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${d.name || ''}</td><td>${d.email || ''}</td><td>${d.role || ''}</td><td>${d.schoolId || ''}</td>`;
+        tbody.appendChild(tr);
+      });
+      if (!tbody.children.length) tbody.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
+    }
+
+    /***** Load Invites placeholder *****/
+    async function loadInvites(container) {
+      container.innerHTML = '<p style="opacity:.8;">(Invite management UI coming soon – send and track email invites.)</p>';
+    }
+
+    /***** Logout *****/
+    async function logout() {
+      await auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+  </script>
+</body>
+</html>
