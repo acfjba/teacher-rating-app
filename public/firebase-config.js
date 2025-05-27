@@ -1,4 +1,4 @@
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
   authDomain: "teacherratingapp.firebaseapp.com",
   databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
@@ -7,7 +7,3 @@ const firebaseConfig = {
   messagingSenderId: "114496602504",
   appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
 };
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();

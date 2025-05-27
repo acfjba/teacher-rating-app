@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>School Admin Dashboard</title>
+  <link rel="stylesheet" href="../common/style.css" />
+  <style>
+    :root{
+      --accent:#e29d56;--bg:#f8f5ec;--card:#fffbe8;--text:#40260a;--radius:12px
+    }
+    body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);display:flex;min-height:100vh}
+    /* --- Sidebar --- */
+    .sidebar{width:240px;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;box-shadow:2px 0 6px #0002}
+    .logo{width:120px;margin:24px 0 12px;filter:drop-shadow(0 2px 4px #0004)}
+    .role-title{font-size:20px;font-weight:700;margin-bottom:26px;text-align:center}
+    .nav-btn{width:100%;background:none;border:none;color:#fff;padding:14px 22px;text-align:left;font-size:15px;cursor:pointer;border-left:4px solid transparent;transition:background .2s}
+    .nav-btn:hover,.nav-btn.active{background:rgba(0,0,0,.15);border-left-color:#fff}
+    .logout{margin-top:auto;background:rgba(0,0,0,.25)}
+    /* --- Main --- */
+    main{flex:1;padding:32px 38px 38px 38px;overflow-y:auto}
+    h1{margin:0 0 24px;font-size:28px;color:var(--text)}
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 2px 8px #0001}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px 14px;border-bottom:1px solid #dcd2b4;font-size:14px;color:#3a2707}
+    th{background:#c98c34;color:#fff;text-align:left}
+    tr:nth-child(even){background:#f7f2e4}
+    .action-btn{padding:6px 10px;border:none;border-radius:6px;background:#3c7a40;color:#fff;cursor:pointer;font-size:12px}
+  </style>
+  <script type="module" src="scripts/schooladmin-dashboard.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <img src="../images/Tra Logo.png" class="logo" alt="TRA Logo" />
+    <div class="role-title">School Admin</div>
+    <button class="nav-btn active" data-view="dashboard">🏠 Dashboard</button>
+    <button class="nav-btn" data-view="tasks">📝 Tasks</button>
+    <button class="nav-btn" data-view="ratings">⭐ Ratings</button>
+    <button class="nav-btn" data-view="staff">👥 Staff</button>
+    <button class="nav-btn" data-view="invites">✉️ Invites</button>
+    <button class="nav-btn" data-view="summary">📊 Summary</button>
+    <button class="nav-btn logout" id="logoutBtn">🚪 Logout</button>
+  </aside>
+
+  <!-- Main content -->
+  <main id="main">
+    <h1 id="pageTitle">Dashboard</h1>
+    <div id="contentArea"></div>
+  </main>
+</body>
+</html>

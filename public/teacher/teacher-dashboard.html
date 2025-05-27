@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teacher Dashboard</title>
+  <link rel="stylesheet" href="../common/style.css" />
+  <style>
+    nav {
+      display: flex;
+      gap: 8px;
+      background: linear-gradient(135deg, #e29d56 0%, #d9743b 100%);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    nav button {
+      background: rgba(255,255,255,0.85);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    main#dashboard-content {
+      background: linear-gradient(135deg, #fffdf9 0%, #f8f4e3 100%);
+      padding: 16px;
+      border-radius: 6px;
+      min-height: 250px;
+    }
+    .tapa-border {
+      border: 8px solid #9c6427;
+      border-radius: 8px;
+      padding: 16px;
+      background-color: #f7f4e9;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .explain {
+      background: #fef5e3;
+      border-left: 5px solid #e29d56;
+      margin-bottom: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 1em;
+      color: #7a5600;
+    }
+    .qa {
+      margin: 10px 0 18px 0;
+      padding: 10px;
+      background: #f6e5b1;
+      border-radius: 6px;
+      font-size: 1em;
+      color: #603f04;
+      border-left: 4px solid #c68a2e;
+    }
+  </style>
+</head>
+<body>
+  <header class="tapa-border">
+    <h1 id="welcomeMsg"></h1>
+    <p><strong>Role:</strong> <span id="role"></span></p>
+  </header>
+  <nav>
+    <button onclick="showAddTask()">Submit Task</button>
+    <button onclick="showTasks()">My Submitted Tasks</button>
+    <button onclick="showRatings()">Ratings & Feedback</button>
+    <button id="logoutBtn">Sign Out</button>
+  </nav>
+  <main id="dashboard-content"></main>
+  <script>
+    // ACCESS CONTROL for Teacher only
+    if(!sessionStorage.getItem('userName') || sessionStorage.getItem('userRole')!=='teacher'){
+      window.location.href = "../common/login.html";
+    }
+    document.getElementById('welcomeMsg').innerText = "Welcome, " + sessionStorage.getItem('userName');
+    document.getElementById('role').innerText = sessionStorage.getItem('userRole');
+    document.getElementById('logoutBtn').onclick = function(){
+      sessionStorage.clear();
+      window.location.href = "../common/login.html";
+    };
+
+    function explain(text) {
+      return `<div class="explain"><b>What to do:</b> ${text}</div>`;
+    }
+    function qa(question, answer) {
+      return `<div class="qa"><b>?</b> ${question}<br><b>Answer:</b> ${answer}</div>`;
+    }
+
+    function showAddTask() {
+      document.getElementById('dashboard-content').innerHTML =
+        explain("Submit your weekly teaching task here. The Head Teacher will review and rate your submission. Use the form below. You can track progress under 'My Submitted Tasks'.") +
+        qa("What happens after I submit?", "Your Head Teacher is notified and will review/accept or rate your task. If rejected, you may resubmit.") +
+        `<h2>Submit a New Task</h2>
+        <form id="addTaskForm" class="tapa-border">
+          <label>Task Title:<br>
+            <input name="taskTitle" required>
+          </label><br>
+          <label>Task Description:<br>
+            <textarea name="taskDesc" required></textarea>
+          </label><br>
+          <button type="submit">Submit Task</button>
+        </form>
+        <div id="taskMsg"></div>
+        `;
+      document.getElementById('addTaskForm').onsubmit = function(e){
+        e.preventDefault();
+        // This is where Firebase code would go!
+        document.getElementById('taskMsg').innerHTML = '<span style="color:green">Task submitted successfully (demo)</span>';
+        this.reset();
+      };
+    }
+    function showTasks() {
+      document.getElementById('dashboard-content').innerHTML =
+        explain("This section lists all your submitted tasks. Watch for Head Teacher review: Accepted (approved), Rejected (needs resubmission), or Rated (with feedback).") +
+        qa("How do I know if my task is accepted?", "You'll see a blue tick and the word 'Accepted'. If rejected, click 'Resubmit'. If rated, see your score and feedback in the next tab.") +
+        `<h2>Your Submitted Tasks</h2>
+        <div class="tapa-border">Demo: Task list would load here.</div>`;
+    }
+    function showRatings() {
+      document.getElementById('dashboard-content').innerHTML =
+        explain("When your Head Teacher rates your submitted task, the feedback and score will appear here.") +
+        qa("What if I don't see feedback?", "Check back after your Head Teacher reviews your task. If it's missing, ask your Head Teacher.") +
+        `<h2>Ratings & Feedback</h2>
+        <div class="tapa-border">Demo: Ratings & feedback would load here.</div>`;
+    }
+    showAddTask(); // default
+  </script>
+</body>
+</html>

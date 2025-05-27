@@ -1,79 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>System Admin Dashboard</title>
+  <link rel="stylesheet" href="../common/style.css" />
   <style>
-    body {
-      background-color: #2c3e50;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 30px;
-      text-align: center;
-    }
-
-    h1 {
-      color: #FFD700;
-      font-size: 40px;
-      margin-bottom: 20px;
-    }
-
-    .button {
-      padding: 12px 24px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .invite-btn { background-color: #f39c12; color: white; }
-    .view-btn { background-color: #9b59b6; color: white; }
-    .summary-btn { background-color: #16a085; color: white; }
-    .logs-btn { background-color: #34495e; color: white; }
-    .users-btn { background-color: #27ae60; color: white; }
-    .ht-btn { background-color: #e67e22; color: white; }
-    .teacher-btn { background-color: maroon; color: white; }
-    .logout-btn { background-color: #2980b9; color: white; }
-
-    table {
-      width: 90%;
-      margin: 20px auto;
-      border-collapse: collapse;
-      background-color: white;
-      color: #333;
-    }
-
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-    }
-
-    th {
-      background-color: maroon;
-      color: white;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
+    :root{--accent:#cf5c37;--bg:#f3efe8;--card:#fffaf3;--text:#3c1f0e;--radius:12px}
+    body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex}
+    /* Sidebar */
+    .sidebar{width:250px;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;box-shadow:2px 0 6px #0002}
+    .logo{width:120px;margin:24px 0 12px;filter:drop-shadow(0 2px 4px #0004)}
+    .role-title{font-size:22px;font-weight:700;margin-bottom:24px;text-align:center}
+    .nav-btn{width:100%;background:none;border:none;color:#fff;padding:14px 22px;text-align:left;font-size:15px;cursor:pointer;border-left:4px solid transparent;transition:background .2s}
+    .nav-btn:hover,.nav-btn.active{background:rgba(0,0,0,.15);border-left-color:#fff}
+    .logout{margin-top:auto;background:rgba(0,0,0,.25)}
+    /* Main */
+    main{flex:1;padding:34px 40px 40px 40px;overflow-y:auto}
+    h1{margin:0 0 26px;font-size:28px;color:var(--text)}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:0 2px 8px #0001;margin-bottom:24px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px 14px;border-bottom:1px solid #dfd4c1;font-size:14px;color:#3a2707}
+    th{background:#bc4a25;color:#fff;text-align:left}
+    tr:nth-child(even){background:#f7f2e9}
   </style>
+  <script type="module" src="scripts/systemadmin-dashboard.js"></script>
 </head>
 <body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <img src="../images/Tra Logo.png" class="logo" alt="TRA Logo" />
+    <div class="role-title">System Admin</div>
+    <button class="nav-btn active" data-view="overview">🗂 All Schools</button>
+    <button class="nav-btn" data-view="users">👥 All Users</button>
+    <button class="nav-btn" data-view="invites">✉️ Invites</button>
+    <button class="nav-btn" data-view="logs">📝 Audit Logs</button>
+    <button class="nav-btn" data-view="settings">⚙️ Settings</button>
+    <button class="nav-btn logout" id="logoutBtn">🚪 Logout</button>
+  </aside>
 
-  <h1>🛡️ Admin Dashboard</h1>
-
-  <div>
-    <button class="button invite-btn" onclick="location.href='email-invite.html'">📩 Send Invite</button>
-    <button class="button view-btn" onclick="location.href='view-invites.html'">👁️ View Invites</button>
-    <button class="button summary-btn" onclick="location.href='rating-summary.html'">📊 Rating Summary</button>
-    <button class="button logs-btn" onclick="location.href='login-logs.html'">📈 App Logs</button>
-    <button class="button users-btn" onclick="location.href='user-summary.html'">👥 All Users</button>
-    <button class="button ht-btn" onclick="location.href='school-head.html'">🏫 Headteacher Panel</button>
-    <button class="button teacher-btn" onclick="location.href='teacher-dashboard.html'">🧑‍🏫 Teacher Panel</button>
-    <button class="button logout-btn" onclick="logout()">🚪 Logout</button>
-  </div>
-
-  <script type="module" src="./admin-dashboard.js"></script>
+  <!-- Main -->
+  <main id="main">
+    <h1 id="pageTitle">All Schools</h1>
+    <div id="contentArea"></div>
+  </main>
 </body>
 </html>

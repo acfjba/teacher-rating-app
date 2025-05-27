@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Head Teacher Dashboard</title>
+  <link rel="stylesheet" href="../common/style.css" />
+  <style>
+    nav {
+      display: flex;
+      gap: 8px;
+      background: linear-gradient(135deg, #e29d56 0%, #d9743b 100%);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    nav button {
+      background: rgba(255,255,255,0.85);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    main#dashboard-content {
+      background: linear-gradient(135deg, #fffdf9 0%, #f8f4e3 100%);
+      padding: 16px;
+      border-radius: 6px;
+      min-height: 250px;
+    }
+    .tapa-border {
+      border: 8px solid #9c6427;
+      border-radius: 8px;
+      padding: 16px;
+      background-color: #f7f4e9;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .explain {
+      background: #fef5e3;
+      border-left: 5px solid #e29d56;
+      margin-bottom: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 1em;
+      color: #7a5600;
+    }
+    .qa {
+      margin: 10px 0 18px 0;
+      padding: 10px;
+      background: #f6e5b1;
+      border-radius: 6px;
+      font-size: 1em;
+      color: #603f04;
+      border-left: 4px solid #c68a2e;
+    }
+  </style>
+</head>
+<body>
+  <header class="tapa-border">
+    <h1 id="welcomeMsg"></h1>
+    <p><strong>Role:</strong> <span id="role"></span></p>
+  </header>
+  <nav>
+    <button onclick="showReview()">Review Tasks</button>
+    <button onclick="showSummary()">Summary</button>
+    <button onclick="showRatingsGiven()">Ratings Given</button>
+    <button id="logoutBtn">Sign Out</button>
+  </nav>
+  <main id="dashboard-content"></main>
+  <script>
+    // ACCESS CONTROL for Head Teacher only
+    if(!sessionStorage.getItem('userName') || sessionStorage.getItem('userRole')!=='headteacher'){
+      window.location.href = "../common/login.html";
+    }
+    document.getElementById('welcomeMsg').innerText = "Welcome, " + sessionStorage.getItem('userName');
+    document.getElementById('role').innerText = sessionStorage.getItem('userRole');
+    document.getElementById('logoutBtn').onclick = function(){
+      sessionStorage.clear();
+      window.location.href = "../common/login.html";
+    };
+
+    function explain(text) {
+      return `<div class="explain"><b>What to do:</b> ${text}</div>`;
+    }
+    function qa(question, answer) {
+      return `<div class="qa"><b>?</b> ${question}<br><b>Answer:</b> ${answer}</div>`;
+    }
+
+    function showReview() {
+      document.getElementById('dashboard-content').innerHTML =
+        explain("Review tasks submitted by teachers in your school. Accept, reject, or provide ratings and feedback. Teachers will see your responses instantly.") +
+        qa("How do I rate a task?", "You can rate or provide feedback for each task after reviewing its details. If you reject a task, the teacher can resubmit.") +
+        `<h2>Review Teacher Tasks</h2>
+        <div class="tapa-border">Demo: List of teacher-submitted tasks would load here.</div>`;
+    }
+    function showSummary() {
+      document.getElementById('dashboard-content').innerHTML =
+        explain("Summary of all task statuses, including number accepted, rejected, or rated for your teachers.") +
+        qa("Why does this summary matter?", "It helps you track teacher progress, see trends, and support teachers who may need help.") +
+        `<h2>Task Summary</h2>
+        <div class="tapa-border">Demo: School-wide task summary here.</div>`;
+    }
+    function showRatingsGiven() {
+      document.getElementById('dashboard-content').innerHTML =
+        explain("View all the ratings and feedback you've given to teachers, for your records and accountability.") +
+        qa("How do I know what feedback I gave?", "All feedback and scores you enter are recorded and visible here.") +
+        `<h2>Ratings Given to Teachers</h2>
+        <div class="tapa-border">Demo: Ratings you have issued will show here.</div>`;
+    }
+    showReview(); // default
+  </script>
+</body>
+</html>

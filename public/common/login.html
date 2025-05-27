@@ -1,295 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login – Teacher Rating App</title>
-  <!-- --------------  STYLE -------------- -->
+  <meta charset="UTF-8">
+  <title>Platform Login</title>
+  <link rel="stylesheet" href="common/style.css" />
   <style>
-    /* --- Core layout --- */
-    :root {
-      --bg: #2c3e50;
-      --accent: #9c6427; /* tapa brown */
-      --btn: maroon;
-      --btn-hover: #a00000;
-      --text-light: #ecf0f1;
-      --border-radius: 12px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text-light);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding: 40px 12px;
-    }
-    /* --- Logo --- */
-    .logo {
-      max-width: 160px; /* roughly half-size of the original asset */
-      margin-bottom: 12px;
-    }
-
-    /* --- Tab header --- */
-    .tab-bar {
-      display: flex;
-      gap: 8px;
-      margin: 24px 0 8px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 10px 18px;
-      background: var(--accent);
-      border: none;
-      border-radius: var(--border-radius) var(--border-radius) 0 0;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.25s ease;
-    }
-    .tab-btn.active { opacity: 1; }
-
-    /* --- Card wrapper with tapa border --- */
-    .card {
-      border: 8px solid var(--accent);
-      border-radius: var(--border-radius);
-      padding: 24px;
-      width: 100%;
-      max-width: 450px;
-      background: #34495e;
-      box-shadow: 0 0 14px rgba(0,0,0,0.25);
-    }
-
-    /* --- Form elements --- */
-    .form {
-      display: none;
-      flex-direction: column;
-      gap: 16px;
-      animation: fadeIn 0.25s ease forwards;
-    }
-    .form.active { display: flex; }
-
-    label {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      font-size: 14px;
-      gap: 4px;
-    }
-    input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: var(--border-radius);
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    .btn-submit {
-      padding: 12px 0;
-      font-size: 18px;
-      background: var(--btn);
-      color: #fff;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-    .btn-submit:hover { background: var(--btn-hover); }
-
-    /* --- Tooltip (question mark) --- */
-    .tip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 12px;
-      border-radius: 50%;
-      margin-left: 6px;
-      cursor: help;
-      position: relative;
-    }
-    .tip:hover::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: 130%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #000;
-      color: #fff;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      white-space: pre-wrap;
-      width: max-content;
-      max-width: 240px;
-    }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    body{background:linear-gradient(135deg,#fbe9d6 0%,#ecd7b1 100%);font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;margin:0}
+    .login-container{max-width:420px;margin:60px auto;background:#fffbe8;border-radius:16px;box-shadow:0 6px 32px #d9b06e42;padding:36px;border:7px solid #d9a14d;text-align:center}
+    .logo{width:120px;margin:0 auto 24px auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2))}
+    /* ----- CSS‑only Tabs ---- */
+    .tabs{display:flex;justify-content:center;margin-bottom:22px}
+    .tabs label{padding:8px 24px;font-weight:bold;cursor:pointer;border-radius:8px 8px 0 0;background:#e29d56;color:#5c3c09;border-bottom:3px solid #fffbe8;user-select:none}
+    input[type=radio]{display:none}
+    input:checked+label{background:#fffbe8;color:#cf7500;border-bottom:3px solid #d9a14d}
+    .tab-content{display:none;text-align:left}
+    #tab1r:checked~#tab1-content,#tab2r:checked~#tab2-content,#tab3r:checked~#tab3-content{display:block}
+    h2{margin:0 0 18px;font-weight:700;color:#a05a1f}
+    form label{display:block;margin:12px 0 3px;color:#633f0b;font-weight:600}
+    form input{width:100%;padding:8px;border-radius:6px;border:1px solid #cfad71;margin-bottom:10px;font-size:1em}
+    .explain{background:#fff5dc;border-left:5px solid #e29d56;padding:9px 12px;border-radius:6px;font-size:.98em;color:#7a5600;margin-bottom:16px}
+    .login-btn{width:100%;padding:10px 30px;background:linear-gradient(90deg,#e29d56 60%,#cfa969 100%);border:none;border-radius:8px;font-weight:bold;color:#5c3c09;font-size:1em;cursor:pointer;margin-top:8px}
+    .login-btn:hover{background:#ffdb99}
+    .error-msg{color:#c03e2e;margin:7px 0}
   </style>
-
-  <!-- Firebase SDKs -->
-  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!-- Updated to the new uploaded logo (place file at public/images/tra-logo.png) -->
-  <img src="images/tra-logo.png" alt="TRA Platform App Logo" class="logo" />
-  <h1>Teacher Rating App</h1>
+  <div class="login-container">
+    <img src="images/Tra Logo.png" alt="TRA Logo" class="logo" />
+    <!-- Hidden radio inputs control the visible tab -->
+    <input type="radio" name="tab" id="tab1r" checked>
+    <input type="radio" name="tab" id="tab2r">
+    <input type="radio" name="tab" id="tab3r">
 
-  <!-- ---------- Tab Headers ---------- -->
-  <div class="tab-bar">
-    <button id="tab-school" class="tab-btn active">School&nbsp;User&nbsp;Login</button>
-    <button id="tab-admin" class="tab-btn">System&nbsp;Admin&nbsp;Login</button>
+    <div class="tabs">
+      <label for="tab1r">School Login</label>
+      <label for="tab2r">School Admin</label>
+      <label for="tab3r">System Admin</label>
+    </div>
+
+    <!-- TAB 1 -->
+    <div id="tab1-content" class="tab-content">
+      <h2>School User Login</h2>
+      <div class="explain">For <b>Teacher, Head Teacher, Primary Admin</b>.<br>Enter your School ID, Email, and Password.</div>
+      <form id="schoolUserForm">
+        <label>School ID<input id="schoolId" required placeholder="E.g., SCH1234"></label>
+        <label>Email<input id="schoolEmail" type="email" required></label>
+        <label>Password<input id="schoolPassword" type="password" required></label>
+        <button class="login-btn" type="submit">Login</button>
+      </form>
+      <div id="schoolUserMsg"></div>
+    </div>
+
+    <!-- TAB 2 -->
+    <div id="tab2-content" class="tab-content">
+      <h2>School Admin Login</h2>
+      <div class="explain">For <b>School Admins</b> only.<br>Use your admin username and password.</div>
+      <form id="schoolAdminForm">
+        <label>Username<input id="adminUsername" required></label>
+        <label>Password<input id="adminPassword" type="password" required></label>
+        <button class="login-btn" type="submit">Login</button>
+      </form>
+      <div id="schoolAdminMsg"></div>
+    </div>
+
+    <!-- TAB 3 -->
+    <div id="tab3-content" class="tab-content">
+      <h2>System Admin Login</h2>
+      <div class="explain">For <b>System Admins</b> with global access.</div>
+      <form id="sysAdminForm">
+        <label>Username<input id="sysAdminUsername" required></label>
+        <label>Password<input id="sysAdminPassword" type="password" required></label>
+        <button class="login-btn" type="submit">Login</button>
+      </form>
+      <div id="sysAdminMsg"></div>
+    </div>
   </div>
 
-  <!-- -------------- Card -------------- -->
-  <div class="card">
-    <!-- ===== School User Form ===== -->
-    <form id="form-school" class="form active">
-      <label>School ID <span class="tip" data-tip="Unique ID provided by your school.">?</span>
-        <input type="text" id="schoolId" required placeholder="e.g. SCH1234" />
-      </label>
-      <label>Email / Username <span class="tip" data-tip="Use the email or username registered for you by your school admin.">?</span>
-        <input type="text" id="schoolEmail" required placeholder="email@example.com" />
-      </label>
-      <label>Password <span class="tip" data-tip="Enter your secure password.">?</span>
-        <input type="password" id="schoolPassword" required />
-      </label>
-      <button type="submit" class="btn-submit">Login</button>
-      <p style="font-size:12px; margin-top:4px;">Forgot password? <a href="reset.html" style="color:#FFD700;">Reset here</a></p>
-    </form>
-
-    <!-- ===== System Admin Form ===== -->
-    <form id="form-admin" class="form">
-      <label>Username <span class="tip" data-tip="Your System Admin username.">?</span>
-        <input type="text" id="adminUsername" required placeholder="sysadmin" />
-      </label>
-      <label>Password <span class="tip" data-tip="Enter your System Admin password.">?</span>
-        <input type="password" id="adminPassword" required />
-      </label>
-      <button type="submit" class="btn-submit">Login</button>
-    </form>
-  </div>
-
-  <footer style="margin-top:20px; font-size:12px; opacity:0.8; text-align:center;">
-    <p>Need help? Email <a href="mailto:projectsbafiji@gmail.com" style="color:#FFD700;">projectsbafiji@gmail.com</a> or call +679 994 2690</p>
-    <p>&copy; <span id="yr"></span> The IT Ba Fiji. All rights reserved.</p>
-  </footer>
-
-  <!-- -------------- SCRIPT -------------- -->
+  <!-- JS for Firebase auth (unchanged) -->
   <script type="module">
-    // ---------- Year footer ----------
-    document.getElementById('yr').textContent = new Date().getFullYear();
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+    import { firebaseConfig } from "./common/firebase-config.js";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    // ---------- Firebase Init ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
-  authDomain: "teacherratingapp.firebaseapp.com",
-  databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
-  projectId: "teacherratingapp",
-  storageBucket: "teacherratingapp.firebasestorage.app",
-  messagingSenderId: "114496602504",
-  appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
-      // ...other keys
+    //  SCHOOL LOGIN
+    schoolUserForm.onsubmit = async e => {
+      e.preventDefault();
+      const id = schoolId.value.trim();
+      const email = schoolEmail.value.trim();
+      const pw = schoolPassword.value;
+      const out = schoolUserMsg;out.textContent='';
+      try{
+        const { user } = await signInWithEmailAndPassword(auth,email,pw);
+        const snap = await getDoc(doc(db,'users',user.uid));
+        if(!snap.exists()||snap.data().schoolId!==id) throw new Error('School mismatch');
+        const r = snap.data().role;
+        sessionStorage.setItem('userRole',r);
+        sessionStorage.setItem('userName',snap.data().name||'');
+        sessionStorage.setItem('schoolId',id);
+        const paths={teacher:'teacher/teacher.html',headteacher:'headteacher/school-head.html',primaryadmin:'primaryadmin/primaryadmin.html'};
+        if(paths[r]) return location.href=paths[r];
+        throw new Error('Role not permitted');
+      }catch(err){await signOut(auth);out.innerHTML=`<span class="error-msg">${err.message}</span>`}
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    // ---------- Tabs ----------
-    const tabSchool = document.getElementById('tab-school');
-    const tabAdmin = document.getElementById('tab-admin');
-    const formSchool = document.getElementById('form-school');
-    const formAdmin = document.getElementById('form-admin');
-
-    tabSchool.addEventListener('click', () => switchTab('school'));
-    tabAdmin.addEventListener('click', () => switchTab('admin'));
-
-    function switchTab(tab) {
-      if (tab === 'school') {
-        tabSchool.classList.add('active');
-        tabAdmin.classList.remove('active');
-        formSchool.classList.add('active');
-        formAdmin.classList.remove('active');
-      } else {
-        tabAdmin.classList.add('active');
-        tabSchool.classList.remove('active');
-        formAdmin.classList.add('active');
-        formSchool.classList.remove('active');
-      }
-    }
-
-    // ---------- School User Login ----------
-    formSchool.addEventListener('submit', async (e) => {
+    //  SCHOOL ADMIN LOGIN
+    schoolAdminForm.onsubmit = async e => {
       e.preventDefault();
-      const schoolId = document.getElementById('schoolId').value.trim();
-      const emailOrUser = document.getElementById('schoolEmail').value.trim();
-      const password = document.getElementById('schoolPassword').value;
+      const email=adminUsername.value.trim(),pw=adminPassword.value;
+      const out=schoolAdminMsg;out.textContent='';
+      try{
+        const { user } = await signInWithEmailAndPassword(auth,email,pw);
+        const d=(await getDoc(doc(db,'users',user.uid))).data();
+        if(!['admin','schooladmin'].includes(d.role)) throw new Error('Not admin');
+        sessionStorage.setItem('userRole',d.role);
+        sessionStorage.setItem('userName',d.name||'');
+        sessionStorage.setItem('schoolId',d.schoolId||'');
+        location.href='school-admin/admin-dashboard.html';
+      }catch(err){await signOut(auth);out.innerHTML=`<span class="error-msg">${err.message}</span>`}
+    };
 
-      // If user typed just username without @, append default domain
-      const email = emailOrUser.includes('@') ? emailOrUser : `${emailOrUser}@school.io`;
-
-      try {
-        const cred = await auth.signInWithEmailAndPassword(email, password);
-        const uid = cred.user.uid;
-        const userDoc = await db.doc(`users/${uid}`).get();
-        if (!userDoc.exists) throw new Error('No user profile found.');
-
-        const { role, schoolId: storedSchoolId } = userDoc.data();
-        if (storedSchoolId !== schoolId) throw new Error('School ID mismatch.');
-
-        // Persist for later use
-        sessionStorage.setItem('schoolId', schoolId);
-        sessionStorage.setItem('role', role);
-
-        // Redirect by role
-        redirectByRole(role);
-      } catch (err) {
-        alert(err.message);
-      }
-    });
-
-    // ---------- System Admin Login ----------
-    formAdmin.addEventListener('submit', async (e) => {
+    //  SYSTEM ADMIN LOGIN
+    sysAdminForm.onsubmit = async e => {
       e.preventDefault();
-      const username = document.getElementById('adminUsername').value.trim();
-      const password = document.getElementById('adminPassword').value;
-
-      const email = username.includes('@') ? username : `${username}@tra.com`;
-
-      try {
-        const cred = await auth.signInWithEmailAndPassword(email, password);
-        const uid = cred.user.uid;
-        const userDoc = await db.doc(`users/${uid}`).get();
-        if (!userDoc.exists || userDoc.data().role !== 'systemAdmin') {
-          throw new Error('Not authorised as System Admin.');
-        }
-        redirectByRole('systemAdmin');
-      } catch (err) {
-        alert(err.message);
-      }
-    });
-
-    // ---------- Redirect helper ----------
-    function redirectByRole(role) {
-      const map = {
-        principal: 'principal-dashboard.html',
-        headTeacher: 'headteacher-dashboard.html',
-        schoolAdmin: 'schooladmin-dashboard.html',
-        teacher: 'teacher-dashboard.html',
-        systemAdmin: 'systemadmin-dashboard.html',
-      };
-      const url = map[role] || 'index.html';
-      window.location.href = url;
-    }
-  </script>
-</body>
-</html>
+      const email=sysAdminUsername.value.trim(),pw=sysAdminPassword.value;
+      const out=sysAdminMsg;out.textContent='';
+      try{
+        const { user } = await signInWithEmailAndPassword(auth,email,pw);
+        const d=(await getDoc(doc(db,'users',user.uid))).data();
+        if(!['systemadmin','superadmin'].includes(d.role)) throw new Error('Not sysadmin');
+        sessionStorage.setItem
