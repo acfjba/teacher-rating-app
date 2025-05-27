@@ -1,0 +1,56 @@
+
+Firestore Database Schema (dbteacherrating)
+
+users (collection)
+├── {uid} (document)
+│   ├── name: string
+│   ├── email: string
+│   ├── role: string ("systemadmin", "schoolAdmin", "primaryadmin", "headteacher", "teacher")
+│   ├── schoolId: string
+│   └── createdAt: timestamp
+
+tasks (collection)
+├── {taskId} (document)
+│   ├── title: string
+│   ├── description: string
+│   ├── assignedTo: uid
+│   ├── createdBy: uid
+│   ├── schoolId: string
+│   ├── status: string ("pending", "completed", "rated")
+│   ├── rating: number (optional)
+│   ├── comment: string (optional)
+│   └── createdAt: timestamp
+
+invites (collection)
+├── {inviteId} (document)
+│   ├── email: string
+│   ├── role: string
+│   ├── schoolId: string
+│   ├── status: string ("pending", "approved", "rejected")
+│   └── createdAt: timestamp
+
+kpi (collection)
+├── {uid} (document)
+│   ├── term: string
+│   ├── score: number
+│   ├── comments: string
+│   └── updatedAt: timestamp
+
+summaries (collection)
+├── {summaryId} (document)
+│   ├── title: string
+│   ├── content: string
+│   └── createdAt: timestamp
+
+staffRecords (collection)
+├── {recordId} (document)
+│   ├── staffName: string
+│   ├── role: string
+│   ├── details: string
+│   └── createdAt: timestamp
+
+schools (collection)
+├── {schoolId} (document)
+    ├── name: string
+    ├── address: string
+    └── createdAt: timestamp

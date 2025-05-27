@@ -1,1 +1,0 @@
-// TODO: Chart.js rating summary logic

@@ -1,0 +1,279 @@
+public/
+├── common/                        
+│   ├── 404.html
+│   ├── index.html
+│   ├── login.html
+│   ├── style.css
+│   ├── firebase-config.js
+│   └── scripts/
+│       ├── auth.js
+│       ├── app.js
+│       └── login.js
+
+├── systemadmin/                   
+│   ├── systemadmin.html
+│   ├── email-invite.html
+│   └── scripts/
+│       ├── systemadmin-dashboard.js
+│       └── invite.js
+
+├── school-admin/                  
+│   ├── admin-dashboard.html
+│   └── scripts/
+│       └── admin-dashboard.js
+
+├── primaryadmin/                  
+│   ├── primaryadmin.html
+│   └── scripts/
+│       └── primaryadmin.js
+
+├── headteacher/                   
+│   ├── headteacher.html
+│   └── scripts/
+│       └── headteacher-dashboard.js
+
+├── teacher/                       
+│   ├── teacher.html
+│   └── scripts/
+│       └── teacher-dashboard.js
+
+└── modules/                       
+    ├── tasks/
+    │   ├── add-task.html
+    │   ├── rate-tasks.html
+    │   └── scripts/
+    │       ├── add-task.js
+    │       └── rate-tasks.js
+
+    ├── kpi/
+    │   ├── kpi-self-assessment.html
+    │   └── scripts/
+    │       └── kpi-self-assessment.js
+
+    ├── records/
+    │   ├── staff-records.html
+    │   └── scripts/
+    │       └── staff-records.js
+
+    └── summaries/
+        ├── summary.html
+        ├── rating-summary.html
+        └── scripts/
+            └── summary.js
+## Firestore Database Schema (`dbteacherrating`)
+
+```
+dbteacherrating (Firestore)
+├── users (collection)
+│   ├── {uid} (document)
+│   │   ├── name: string
+│   │   ├── email: string
+│   │   ├── role: string ("systemadmin", "schoolAdmin", "primaryadmin", "headteacher", "teacher")
+│   │   ├── schoolId: string
+│   │   └── createdAt: timestamp
+│
+├── tasks (collection)
+│   ├── {taskId} (document)
+│   │   ├── title: string
+│   │   ├── description: string
+│   │   ├── assignedTo: uid
+│   │   ├── createdBy: uid
+│   │   ├── schoolId: string
+│   │   ├── status: string ("pending", "completed", "rated")
+│   │   ├── rating: number (optional)
+│   │   ├── comment: string (optional)
+│   │   └── createdAt: timestamp
+│
+├── invites (collection)
+│   ├── {inviteId} (document)
+│   │   ├── email: string
+│   │   ├── role: string
+│   │   ├── schoolId: string
+│   │   ├── status: string ("pending", "approved", "rejected")
+│   │   └── createdAt: timestamp
+│
+├── kpi (collection)
+│   ├── {uid} (document)
+│   │   ├── term: string
+│   │   ├── score: number
+│   │   ├── comments: string
+│   │   └── updatedAt: timestamp
+│
+├── summaries (collection)
+│   ├── {summaryId} (document)
+│   │   ├── title: string
+│   │   ├── content: string
+│   │   └── createdAt: timestamp
+│
+├── staffRecords (collection)
+│   ├── {recordId} (document)
+│   │   ├── staffName: string
+│   │   ├── role: string
+│   │   ├── details: string
+│   │   └── createdAt: timestamp
+└── schools (collection)
+    ├── {schoolId} (document)
+        ├── name: string
+        ├── address: string
+        └── createdAt: timestamp
+```
+
+---
+
+## Core JavaScript Functions
+
+### 1. Authentication & Routing (`common/scripts`)
+
+#### `login.js`
+
+* **initLogin()**
+
+  * Attaches `submit` listener to `#login-form`.
+  * Calls `signInWithEmailAndPassword(auth, email, password)`.
+  * On success, calls `getUserRole(uid)` and redirects to appropriate dashboard.
+
+* **getUserRole(uid)**
+
+  * Reads `/users/{uid}` from Firestore.
+  * Returns user role string.
+  * Redirects based on role:
+
+    * `systemadmin` → `/systemadmin/systemadmin.html`
+    * `schoolAdmin` → `/school-admin/admin-dashboard.html`
+    * `primaryadmin` → `/primaryadmin/primaryadmin.html`
+    * `headteacher` → `/headteacher/headteacher.html`
+    * `teacher` → `/teacher/teacher.html`
+
+#### `app.js`
+
+* **monitorAuth()**
+
+  * `onAuthStateChanged(auth, user => { if (!user) window.location.href = '/common/login.html'; })`.
+
+* **signOutBtn()**
+
+  * Attaches to Sign Out button.
+  * Calls `auth.signOut()` and redirects to login.
+
+---
+
+### 2. Email Invite (`systemadmin/scripts/invite.js`)
+
+* **sendInvite(event)**
+
+  * Prevents default form submission.
+  * Reads `#email`, `#role`, and `#schoolId` inputs.
+  * Calls `addDoc(collection(db, 'invites'), { email, role, schoolId, status: 'pending', createdAt: serverTimestamp() })`.
+  * On success, displays confirmation message.
+
+---
+
+### 3. Dashboard Modules
+
+Each role-dashboard script follows similar patterns:
+
+* Query Firestore for relevant data.
+* Render lists/tables into the DOM.
+* Provide action handlers (approve, rate, update).
+
+Examples:
+
+#### `school-admin/scripts/admin-dashboard.js`
+
+* **loadAdminDashboard()**
+
+  * Fetch `/tasks` where `schoolId == currentUser.schoolId`.
+  * Render into HTML table.
+
+* **approveInvite(id, approve)**
+
+  * Update `/invites/{id}` `status` to `approved` or `rejected`.
+
+#### `headteacher/scripts/headteacher-dashboard.js`
+
+* **loadHeadTasks()**
+
+  * Fetch `/tasks` with `status == 'pending'` and matching `schoolId`.
+* **submitRating(taskId, score, comment)**
+
+  * Update task document with `rating`, `comment`, `status = 'rated'`.
+
+---
+
+## UI Explanations & Styling
+
+All HTML pages include `style.css` which implements the Gradient & Tapa Theme:
+
+```css
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #f8f4e3 0%, #fffdf9 100%);
+  margin: 0; padding: 0;
+}
+
+.tapa-border {
+  border: 8px solid #9c6427;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f7f4e9;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+header, footer {
+  background-color: rgba(76, 60, 31, 0.85);
+  color: #fff;
+  padding: 12px;
+}
+```
+
+### Field & Function Explanations
+
+* **Login Page** (`login.html`)
+
+  * **School ID**: your registered school identifier.
+  * **Email**: your login email.
+  * **Password**: your account password.
+
+* **Email Invite** (`email-invite.html`)
+
+  * **Email**: address to invite.
+  * **Role**: select user role.
+  * **School ID**: assign to a specific school.
+
+* **Add Task** (`modules/tasks/add-task.html`)
+
+  * **Title/Description**: describe the task.
+  * **Assign To**: select teacher UID.
+
+* **Rate Tasks** (`modules/tasks/rate-tasks.html`)
+
+  * **Task List**: tasks awaiting your rating.
+  * **Score/Comment**: provide feedback.
+
+* **KPI Assessment** (`modules/kpi/kpi-self-assessment.html`)
+
+  * **Term**: select term (e.g., "Term 1").
+  * **Score**: rate yourself 1–10.
+  * **Comments**: optional notes.
+
+* **Staff Records** (`modules/records/staff-records.html`)
+
+  * **Staff Name/Role**: record staff details.
+  * **Details**: free-text field for notes.
+
+* **Summaries** (`modules/summaries/summary.html`)
+
+  * **Overview**: displays summary reports.
+  * **Rating Summary**: aggregated ratings by teacher.
+
+Each page wraps content in a `.tapa-border` container and uses gradient backgrounds to maintain the Fijian tapa aesthetic.
+
+ok in users schema you missed teacher ok make the db file give it to me to download it
+
+in user collection role string teacher missing
+
+make a database file in notepad+++
+
+you there
+
+make it in notepad for me to download beacause we have to follow it so give it
