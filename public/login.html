@@ -8,7 +8,6 @@
     body{background:linear-gradient(135deg,#fbe9d6 0%,#ecd7b1 100%);font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;margin:0}
     .login-container{max-width:420px;margin:60px auto;background:#fffbe8;border-radius:16px;box-shadow:0 6px 32px #d9b06e42;padding:36px;border:7px solid #d9a14d;text-align:center}
     .logo{width:120px;margin:0 auto 24px auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2))}
-    /* ----- CSS‑only Tabs ---- */
     .tabs{display:flex;justify-content:center;margin-bottom:22px}
     .tabs label{padding:8px 24px;font-weight:bold;cursor:pointer;border-radius:8px 8px 0 0;background:#e29d56;color:#5c3c09;border-bottom:3px solid #fffbe8;user-select:none}
     input[type=radio]{display:none}
@@ -26,19 +25,15 @@
 </head>
 <body>
   <div class="login-container">
-    <img src="images/Tra Logo.png" alt="TRA Logo" class="logo" />
-    <!-- Hidden radio inputs control the visible tab -->
+    <img src="/Tra Logo.png" alt="TRA Logo" class="logo" />
     <input type="radio" name="tab" id="tab1r" checked>
     <input type="radio" name="tab" id="tab2r">
     <input type="radio" name="tab" id="tab3r">
-
     <div class="tabs">
       <label for="tab1r">School Login</label>
       <label for="tab2r">School Admin</label>
       <label for="tab3r">System Admin</label>
     </div>
-
-    <!-- TAB 1 -->
     <div id="tab1-content" class="tab-content">
       <h2>School User Login</h2>
       <div class="explain">For <b>Teacher, Head Teacher, Primary Admin</b>.<br>Enter your School ID, Email, and Password.</div>
@@ -50,11 +45,9 @@
       </form>
       <div id="schoolUserMsg"></div>
     </div>
-
-    <!-- TAB 2 -->
     <div id="tab2-content" class="tab-content">
       <h2>School Admin Login</h2>
-      <div class="explain">For <b>School Admins</b> only.<br>Use your admin username and password.</div>
+      <div class="explain">For <b>School Admins</b> only.<br>Use your admin credentials.</div>
       <form id="schoolAdminForm">
         <label>Username<input id="adminUsername" required></label>
         <label>Password<input id="adminPassword" type="password" required></label>
@@ -62,8 +55,6 @@
       </form>
       <div id="schoolAdminMsg"></div>
     </div>
-
-    <!-- TAB 3 -->
     <div id="tab3-content" class="tab-content">
       <h2>System Admin Login</h2>
       <div class="explain">For <b>System Admins</b> with global access.</div>
@@ -75,25 +66,23 @@
       <div id="sysAdminMsg"></div>
     </div>
   </div>
-
-  <!-- JS for Firebase auth (unchanged) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
-    import { firebaseConfig } from "./common/firebase-config.js";
+    import { firebaseConfig } from "./firebase-config.js";
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    //  SCHOOL LOGIN
+    // School User Login
     schoolUserForm.onsubmit = async e => {
       e.preventDefault();
       const id = schoolId.value.trim();
       const email = schoolEmail.value.trim();
       const pw = schoolPassword.value;
-      const out = schoolUserMsg;out.textContent='';
-      try{
+      const out = schoolUserMsg; out.textContent='';
+      try {
         const { user } = await signInWithEmailAndPassword(auth,email,pw);
         const snap = await getDoc(doc(db,'users',user.uid));
         if(!snap.exists()||snap.data().schoolId!==id) throw new Error('School mismatch');
@@ -101,35 +90,46 @@
         sessionStorage.setItem('userRole',r);
         sessionStorage.setItem('userName',snap.data().name||'');
         sessionStorage.setItem('schoolId',id);
-        const paths={teacher:'teacher/teacher.html',headteacher:'headteacher/school-head.html',primaryadmin:'primaryadmin/primaryadmin.html'};
-        if(paths[r]) return location.href=paths[r];
+        const paths = {
+          teacher:'/teacher-dashboard.html',
+          headteacher:'/school-head.html',
+          primaryadmin:'/primaryadmin.html'
+        };
+        if(paths[r]) return location.href = paths[r];
         throw new Error('Role not permitted');
-      }catch(err){await signOut(auth);out.innerHTML=`<span class="error-msg">${err.message}</span>`}
+      } catch(err) { await signOut(auth); out.innerHTML=`<span class="error-msg">${err.message}</span>`; }
     };
 
-    //  SCHOOL ADMIN LOGIN
+    // School Admin Login
     schoolAdminForm.onsubmit = async e => {
       e.preventDefault();
-      const email=adminUsername.value.trim(),pw=adminPassword.value;
-      const out=schoolAdminMsg;out.textContent='';
-      try{
+      const email = adminUsername.value.trim(), pw = adminPassword.value;
+      const out = schoolAdminMsg; out.textContent='';
+      try {
         const { user } = await signInWithEmailAndPassword(auth,email,pw);
-        const d=(await getDoc(doc(db,'users',user.uid))).data();
+        const d = (await getDoc(doc(db,'users',user.uid))).data();
         if(!['admin','schooladmin'].includes(d.role)) throw new Error('Not admin');
         sessionStorage.setItem('userRole',d.role);
         sessionStorage.setItem('userName',d.name||'');
         sessionStorage.setItem('schoolId',d.schoolId||'');
-        location.href='school-admin/admin-dashboard.html';
-      }catch(err){await signOut(auth);out.innerHTML=`<span class="error-msg">${err.message}</span>`}
+        location.href = '/admin-dashboard.html';
+      } catch(err) { await signOut(auth); out.innerHTML=`<span class="error-msg">${err.message}</span>`; }
     };
 
-    //  SYSTEM ADMIN LOGIN
+    // System Admin Login
     sysAdminForm.onsubmit = async e => {
       e.preventDefault();
-      const email=sysAdminUsername.value.trim(),pw=sysAdminPassword.value;
-      const out=sysAdminMsg;out.textContent='';
-      try{
+      const email = sysAdminUsername.value.trim(), pw = sysAdminPassword.value;
+      const out = sysAdminMsg; out.textContent='';
+      try {
         const { user } = await signInWithEmailAndPassword(auth,email,pw);
-        const d=(await getDoc(doc(db,'users',user.uid))).data();
+        const d = (await getDoc(doc(db,'users',user.uid))).data();
         if(!['systemadmin','superadmin'].includes(d.role)) throw new Error('Not sysadmin');
-        sessionStorage.setItem
+        sessionStorage.setItem('userRole',d.role);
+        sessionStorage.setItem('userName',d.name||'');
+        location.href = '/systemadmin.html';
+      } catch(err) { await signOut(auth); out.innerHTML=`<span class="error-msg">${err.message}</span>`; }
+    };
+  </script>
+</body>
+</html>
