@@ -6,5 +6,25 @@
       "**/.*",
       "**/node_modules/**"
     ]
+<<<<<<< HEAD
+=======
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "*.local"
+    ]
+  },
+  "firestore": {
+    "database": "dbteacherrating",
+    "location": "australia-southeast1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+>>>>>>> 2885139 (Initial commit)
   }
 }

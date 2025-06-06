@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TRA Platform – Summaries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family:'Montserrat',sans-serif; background:#f0f2f5; margin:0; }
+    .container { max-width:900px; margin:2rem auto; padding:1rem; background:#fff; border:6px solid #934b13; outline:4px solid #eec77f; border-radius:12px; }
+    h1 { color:#934b13; margin-bottom:1rem; }
+    #charts { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .chart-box { padding:1rem; border:1px solid #c4a484; border-radius:8px; background:#faf7f2; min-height:200px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Performance Summaries</h1>
+    <div id="charts">
+      <div class="chart-box" id="chartSubmitted">Loading Submitted…</div>
+      <div class="chart-box" id="chartApproved">Loading Approved…</div>
+      <div class="chart-box" id="chartRejected">Loading Rejected…</div>
+      <div class="chart-box" id="chartRated">Loading Rated…</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db }       from "./firebase.js";
+    import { onAuthStateChanged }       from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    onAuthStateChanged(auth, user => {
+      if (!user) return location.href = 'login.html';
+      // you could also check role here…
+      loadSummaries();
+    });
+
+    async function loadSummaries() {
+      const statuses = ['pending','approved','rejected'];
+      const tasksRef = collection(db, 'tasks');
+      const counts = {};
+      for (let st of statuses) {
+        counts[st] = (await getDocs(query(tasksRef, where('status','==',st)))).size;
+        document.getElementById(
+          st==='pending' ? 'chartSubmitted' :
+          st==='approved'? 'chartApproved' :
+          'chartRejected'
+        ).textContent = `${st.charAt(0).toUpperCase()+st.slice(1)}: ${counts[st]}`;
+      }
+      // rated = rating >= 0
+      const ratedCount = (await getDocs(query(tasksRef, where('rating','>=',0)))).size;
+      document.getElementById('chartRated').textContent = `Rated: ${ratedCount}`;
+    }
+  </script>
+</body>
+</html>

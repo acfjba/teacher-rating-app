@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Bulk Email</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 0 1em;
+    }
+    label {
+      display: block;
+      margin: 1em 0 0.5em;
+      font-weight: bold;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 0.5em;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      height: 200px;
+    }
+    .button {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 0.75em 1.5em;
+      font-size: 1em;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+    .button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 1em;
+      font-size: 0.95em;
+      color: #333;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+    .help-text {
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-functions-compat.js"></script>
+
+  <script>
+    // TODO: Replace these with your actual Firebase web config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+  authDomain: "teacherratingapp.firebaseapp.com",
+  databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+  projectId: "teacherratingapp",
+  storageBucket: "teacherratingapp.firebasestorage.app",
+  messagingSenderId: "114496602504",
+  appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <h1>Send Bulk Email (Admin Only)</h1>
+
+  <label for="recipients">
+    Recipient Emails <span style="color: red;">*</span>
+    <div class="help-text">Enter one email address per line (no commas).</div>
+  </label>
+  <textarea id="recipients" placeholder="user1@example.com\nuser2@example.com"></textarea>
+
+  <label for="subject">
+    Subject <span style="color: red;">*</span>
+  </label>
+  <input id="subject" type="text" placeholder="Weekly Newsletter" />
+
+  <label for="htmlBody">
+    HTML Body <span style="color: red;">*</span>
+    <div class="help-text">Paste full HTML (e.g. <code>&lt;h1&gt;Hello&lt;/h1&gt;</code>).</div>
+  </label>
+  <textarea id="htmlBody" placeholder="<h1>Hello!</h1><p>...</p>"></textarea>
+
+  <button id="sendBtn" class="button">Send Bulk Email</button>
+  <div id="status" class="status"></div>
+
+  <script>
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        document.getElementById('status').innerHTML =
+          '<span class="error">You must sign in to access this page.</span>';
+        document.getElementById('sendBtn').disabled = true;
+        return;
+      }
+      // Check Firestore for the user’s role
+      const uid = user.uid;
+      const userDoc = await firebase.firestore().collection('users').doc(uid).get();
+      if (!userDoc.exists || (userDoc.data().role !== 'admin' && userDoc.data().role !== 'superadmin')) {
+        document.getElementById('status').innerHTML =
+          '<span class="error">You do not have permission to send bulk email.</span>';
+        document.getElementById('sendBtn').disabled = true;
+        return;
+      }
+      // Otherwise, allow the form to be used
+    });
+
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = '';
+      document.getElementById('sendBtn').disabled = true;
+
+      const rawEmails = document.getElementById('recipients').value.trim();
+      const subject = document.getElementById('subject').value.trim();
+      const htmlBody = document.getElementById('htmlBody').value.trim();
+
+      if (!rawEmails || !subject || !htmlBody) {
+        statusEl.innerHTML = '<span class="error">All fields are required.</span>';
+        document.getElementById('sendBtn').disabled = false;
+        return;
+      }
+
+      const emails = rawEmails
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      for (let e of emails) {
+        if (!emailRegex.test(e)) {
+          statusEl.innerHTML = `<span class="error">Invalid email detected: ${e}</span>`;
+          document.getElementById('sendBtn').disabled = false;
+          return;
+        }
+      }
+
+      statusEl.innerHTML = 'Sending… please wait.';
+
+      try {
+        const sendBulkEmail = firebase.functions().httpsCallable('sendBulkEmail');
+        const result = await sendBulkEmail({ emails, subject, htmlBody });
+        const { successCount, failureCount, failures } = result.data;
+
+        let msg = `<span class="success">Sent: ${successCount}</span>`;
+        if (failureCount > 0) {
+          msg += `<br/><span class="error">Failed: ${failureCount}</span><ul>`;
+          failures.forEach((f) => {
+            msg += `<li>${f.email}: ${f.error}</li>`;
+          });
+          msg += `</ul>`;
+        }
+        statusEl.innerHTML = msg;
+      } catch (err) {
+        console.error('sendBulkEmail error:', err);
+        statusEl.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+      } finally {
+        document.getElementById('sendBtn').disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

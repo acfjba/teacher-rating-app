@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TRA Platform – Primary School Admin Dashboard</title>
+  <link href="styles/main.css" rel="stylesheet"/>
+  <style>
+    :root { --tapa-brown:#934b13; --tapa-light:#eec77f; --tapa-bg:#f0f2f5; --tapa-text:#6a370f; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{display:flex;min-height:100vh;font-family:'Montserrat',sans-serif;background:var(--tapa-bg);}
+    .sidebar{width:220px;background:#fff;border-right:6px solid var(--tapa-brown);outline:4px solid var(--tapa-light);padding:1.5rem;position:relative;}
+    .sidebar img{width:48px;display:block;margin:0 auto 1rem;}
+    .sidebar h2{text-align:center;font-size:1.4rem;color:var(--tapa-brown);margin-bottom:1rem;}
+    .nav-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;margin-bottom:.5rem;border-radius:6px;cursor:pointer;color:var(--tapa-text);transition:background .2s;}
+    .nav-item:hover,.nav-item.active{background:var(--tapa-light);font-weight:600;}
+    .nav-item .tooltip{font-size:1.1em;background:var(--tapa-light);color:var(--tapa-brown);padding:2px 6px;border-radius:50%;cursor:help;border:1px solid #c28d2a;}
+    #logoutBtn{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;padding:.6rem;background:var(--tapa-brown);color:#fff;border:none;border-radius:6px;cursor:pointer;}
+    main{flex:1;padding:2rem;}
+    .tab-content{display:none;}.tab-content.active{display:block;}
+    h1{color:var(--tapa-brown);font-size:1.8rem;margin-bottom:1rem;}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+    .card{background:#fff;border:2px solid var(--tapa-brown);border-radius:8px;padding:1rem;text-align:center;}
+    .card h3{margin-bottom:.5rem;color:var(--tapa-brown);font-size:1rem;}
+    .card p{font-size:1.5rem;margin:0;color:#183fb3;}
+    table{width:100%;border-collapse:collapse;margin-top:1rem;background:#fff;border-radius:6px;overflow:hidden;}
+    th,td{padding:.6rem;border-bottom:1px solid #ddd;text-align:left;}
+    th{background:var(--tapa-light);}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <img src="images/Tra Logo.png" alt="TRA Logo"/>
+    <h2>Primary School Admin</h2>
+    <div id="navOverview" class="nav-item active">Overview <span class="tooltip" title="View school‐wide summary metrics">?</span></div>
+    <div id="navTeachers" class="nav-item">Teachers <span class="tooltip" title="Manage teacher accounts">?</span></div>
+    <div id="navTasks" class="nav-item">All Tasks <span class="tooltip" title="View all tasks for your school">?</span></div>
+    <div id="navReports" class="nav-item">Reports <span class="tooltip" title="View aggregate reports and charts">?</span></div>
+    <button id="logoutBtn">Logout <span class="tooltip" title="Sign out of your account">?</span></button>
+  </aside>
+  <main>
+    <section id="overviewContent" class="tab-content active">
+      <h1>School Overview</h1>
+      <div class="cards">
+        <div class="card"><h3>Teachers</h3><p id="countTeachers">0</p></div>
+        <div class="card"><h3>Submitted Tasks</h3><p id="countSub">0</p></div>
+        <div class="card"><h3>Accepted</h3><p id="countAcc">0</p></div>
+        <div class="card"><h3>Rejected</h3><p id="countRej">0</p></div>
+      </div>
+    </section>
+    <section id="teachersContent" class="tab-content">
+      <h1>Teachers List</h1>
+      <table id="teachersTable">
+        <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+    <section id="tasksContent" class="tab-content">
+      <h1>All Tasks</h1>
+      <table id="allTasksTable">
+        <thead><tr><th>Teacher</th><th>Term</th><th>Week</th><th>Status</th><th>Submitted On</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+    <section id="reportsContent" class="tab-content">
+      <h1>Reports</h1>
+      <p>Aggregate charts and summary reports for the school. <span class="tooltip" title="View visual summaries of performance metrics">?</span></p>
+    </section>
+  </main>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const cfg={apiKey:"AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",authDomain:"teacherratingapp.firebaseapp.com",databaseURL:"https://teacherratingapp-default-rtdb.firebaseio.com",projectId:"teacherratingapp",storageBucket:"teacherratingapp.firebasestorage.app",messagingSenderId:"114496602504",appId:"1:114496602504:web:62d555a0358a32b0cdba3d"};
+    const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);
+    const navs=['Overview','Teachers','Tasks','Reports'];navs.forEach(id=>document.getElementById('nav'+id).onclick=()=>navs.forEach(i=>{document.getElementById('nav'+i).classList.toggle('active',i===id);document.getElementById(i.toLowerCase()+'Content').classList.toggle('active',i===id);}));
+    document.getElementById('logoutBtn').onclick=()=>signOut(auth).then(()=>location.href='login.html');
+    let schoolId;onAuthStateChanged(auth,user=>{if(!user)return location.href='login.html';getDocs(collection(db,'users')).then(snap=>{const me=snap.docs.find(d=>d.id===user.uid)?.data();if(me.role!=='primaryAdmin')return location.href='login.html';schoolId=me.schoolId;loadOverview();loadTeachers();loadTasks();});});
+    async function loadOverview(){const tRef=collection(db,'users'),tskRef=collection(db,'tasks');const teachCount=(await getDocs(query(tRef,where('schoolId','==',schoolId),where('role','==','teacher')))).size;const subCount=(await getDocs(query(tskRef,where('schoolId','==',schoolId),where('status','==','submitted')))).size;const accCount=(await getDocs(query(tskRef,where('schoolId','==',schoolId),where('status','==','accepted')))).size;const rejCount=(await getDocs(query(tskRef,where('schoolId','==',schoolId),where('status','==','rejected')))).size;document.getElementById('countTeachers').textContent=teachCount;document.getElementById('countSub').textContent=subCount;document.getElementById('countAcc').textContent=accCount;document.getElementById('countRej').textContent=rejCount;}
+    async function loadTeachers(){const tbl=document.querySelector('#teachersTable tbody');tbl.innerHTML='';const snap=await getDocs(query(collection(db,'users'),where('schoolId','==',schoolId),where('role','==','teacher')));snap.forEach(d=>{const u=d.data(),tr=document.createElement('tr');tr.innerHTML=`<td>${u.fullName}</td><td>${u.username}</td><td>${u.email}</td><td>${u.status||'pending'}</td>`;tbl.appendChild(tr);});}
+    function loadTasks(){const tbl=document.querySelector('#allTasksTable tbody');onSnapshot(query(collection(db,'tasks'),where('schoolId','==',schoolId)),snap=>{tbl.innerHTML='';snap.forEach(d=>{const t=d.data(),tr=document.createElement('tr');tr.innerHTML=`<td>${t.teacherName}</td><td>${t.term}</td><td>${t.week}</td><td>${t.status}</td><td>${t.timestamp.toDate().toLocaleString()}</td>`;tbl.appendChild(tr);});});}
+  </script>
+</body>
+</html>

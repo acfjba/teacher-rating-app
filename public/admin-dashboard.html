@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+<<<<<<< HEAD
   <title>School Admin Dashboard</title>
   <link rel="stylesheet" href="..//style.css" />
   <style>
@@ -47,5 +48,243 @@
     <h1 id="pageTitle">Dashboard</h1>
     <div id="contentArea"></div>
   </main>
+=======
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TRA Platform – Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Tapa-themed colors and layout */
+    :root {
+      --tapa-brown: #934b13;
+      --tapa-light: #eec77f;
+      --tapa-bg: #f0f2f5;
+      --tapa-text: #6a370f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; min-height: 100vh; font-family: 'Montserrat', sans-serif; }
+
+    /* Sidebar navigation */
+    .sidebar {
+      width: 240px;
+      background: #fff;
+      border-right: 6px solid var(--tapa-brown);
+      outline: 4px solid var(--tapa-light);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .sidebar img { width: 48px; display: block; margin: 0 auto 1rem; }
+    .sidebar h2 { text-align: center; font-size: 1.4rem; color: var(--tapa-brown); margin-bottom: 1rem; }
+    .nav-item {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 1rem;
+      margin-bottom: 0.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--tapa-text);
+      transition: background 0.2s;
+    }
+    .nav-item:hover { background: var(--tapa-light); }
+    .nav-item.active { background: var(--tapa-light); font-weight: bold; }
+    .nav-item .tooltip {
+      font-size: 1.1em;
+      background: var(--tapa-light);
+      color: var(--tapa-brown);
+      padding: 2px 6px;
+      border-radius: 50%;
+      cursor: help;
+      border: 1px solid #c28d2a;
+    }
+
+    /* Logout button fixed in sidebar */
+    #logoutBtn {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      padding: 0.6rem;
+      background: var(--tapa-brown);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    /* Main content area */
+    main {
+      flex: 1;
+      background: var(--tapa-bg);
+      padding: 2rem;
+      position: relative;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Overview cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .card {
+      background: #fff;
+      border: 2px solid var(--tapa-brown);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .card h3 { margin-bottom: 0.5rem; color: var(--tapa-brown); }
+    .card p { font-size: 1.8rem; margin: 0; color: #183fb3; }
+
+    /* Tables styling */
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; border-radius: 6px; overflow: hidden; }
+    th, td { padding: 0.7rem; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: var(--tapa-light); }
+
+    /* Invite form */
+    .invite-form { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
+    .invite-form input, .invite-form select { flex: 1; padding: 0.5rem; border: 1px solid #c4a484; border-radius: 6px; }
+    .invite-form button { padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #183fb3; color: #fff; cursor: pointer; }
+
+    /* Footer copyright */
+    .footer { position: absolute; bottom: 1rem; width: calc(100% - 240px); text-align: center; color: #92613e; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <img src="images/Tra Logo.png" alt="TRA Logo" />
+    <h2>Admin Panel</h2>
+    <div id="navOverview" class="nav-item active">Overview <span class="tooltip" title="See key stats: submitted, approved, etc">?</span></div>
+    <div id="navInvites" class="nav-item">Email Invites <span class="tooltip" title="Invite new users via email">?</span></div>
+    <div id="navUsers" class="nav-item">User Management <span class="tooltip" title="View and edit user accounts">?</span></div>
+    <div id="navTasks" class="nav-item">Task Ratings <span class="tooltip" title="Review and rate submitted tasks">?</span></div>
+    <div id="navSummary" class="nav-item">Summaries <span class="tooltip" title="Aggregate reports and charts">?</span></div>
+    <button id="logoutBtn">Logout</button>
+  </aside>
+
+  <main>
+    <!-- Overview Section -->
+    <section id="overviewContent" class="tab-content active">
+      <h1>Overview</h1>
+      <div class="cards">
+        <div class="card"><h3>Submitted</h3><p id="countSubmitted">0</p></div>
+        <div class="card"><h3>Approved</h3><p id="countApproved">0</p></div>
+        <div class="card"><h3>Rejected</h3><p id="countRejected">0</p></div>
+        <div class="card"><h3>Rated</h3><p id="countRated">0</p></div>
+        <div class="card"><h3>Invites</h3><p id="countInvited">0</p></div>
+      </div>
+    </section>
+
+    <!-- Email Invites Section -->
+    <section id="invitesContent" class="tab-content">
+      <h1>Email Invites</h1>
+      <form id="inviteForm" class="invite-form">
+        <input type="email" id="inviteEmail" placeholder="Email address" required />
+        <select id="inviteRole">
+          <option value="teacher">Teacher</option>
+          <option value="headteacher">Head Teacher</option>
+          <option value="primaryAdmin">Primary Admin</option>
+        </select>
+        <input type="text" id="inviteSchoolId" placeholder="School ID" required />
+        <button type="submit">Send</button>
+      </form>
+      <table id="inviteTable">
+        <thead><tr><th>Email</th><th>Role</th><th>School ID</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- User Management Section -->
+    <section id="usersContent" class="tab-content">
+      <h1>User Management</h1>
+      <table id="usersTable">
+        <thead><tr><th>Name</th><th>Role</th><th>School ID</th><th>Email</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Task Ratings Section -->
+    <section id="tasksContent" class="tab-content">
+      <h1>Task Ratings</h1>
+      <table id="tasksTable">
+        <thead><tr><th>Teacher</th><th>Term</th><th>Week</th><th>Status</th><th>Rating</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Summaries Section -->
+    <section id="summaryContent" class="tab-content">
+      <h1>Summaries</h1>
+      <p>This section will display charts and written explanations guiding you through interpreting key performance metrics across schools.</p>
+    </section>
+  </main>
+
+  <div class="footer">&copy; The it-Ba</div>
+
+  <script type="module">
+    /* Firebase imports */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    /* Firebase config & initialization */
+    const firebaseConfig = {
+      apiKey: "AIzaSyA69R-DYOlIvArgq2ABJp2KVkFALYOYLm0",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      databaseURL: "https://teacherratingapp-default-rtdb.firebaseio.com",
+      projectId: "teacherratingapp",
+      storageBucket: "teacherratingapp.firebasestorage.app",
+      messagingSenderId: "114496602504",
+      appId: "1:114496602504:web:62d555a0358a32b0cdba3d"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    /* Function to switch sidebar tabs */
+    const navItems = ['Overview','Invites','Users','Tasks','Summary'];
+    navItems.forEach(id => {
+      document.getElementById('nav'+id).onclick = () => {
+        navItems.forEach(i => {
+          document.getElementById('nav'+i).classList.toggle('active', i===id);
+          document.getElementById(i.toLowerCase()+'Content').classList.toggle('active', i===id);
+        });
+      };
+    });
+
+    /* Authentication guard: redirects to login.html if not logged in or not admin */
+// When the page loads, we check the user's authentication state with Firebase Auth.
+// If no user is signed in, we redirect them back to login.html.
+// If a user is signed in but does not have the 'admin' role in Firestore, we also redirect them.
+onAuthStateChanged(auth, user => {
+  if (!user) return location.href = 'login.html';
+  getDocs(collection(db,'users')).then(snap => {
+    const me = snap.docs.find(d => d.id === user.uid)?.data();
+    if (me.role !== 'admin') return location.href = 'login.html';
+    loadOverview(); loadInvites(); loadUsers(); loadTasks();
+  });
+});
+    });
+
+    /* Logout button: signs out and redirects back to login page */
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.href = 'login.html');
+
+    /* Load counts for overview cards from Firestore */
+    async function loadOverview() {
+      const tasksRef = collection(db, 'tasks');
+      const statuses = ['pending','approved','rejected'];
+      const counts = {};
+      for (let st of statuses) {
+        counts[st] = (await getDocs(query(tasksRef, where('status','==', st)))).size;
+      }
+      counts['rated'] = (await getDocs(query(tasksRef, where('rating','>=',0)))).size;
+      const inviteCount = (await getDocs(collection(db,'invites'))).size;
+
+      document.getElementById('countSubmitted').textContent = counts['pending'];
+      document.getElementById('countApproved').textContent  = counts['approved'];
+      document.getElementById('countRejected').textContent  = counts['rejected'];
+      document.getElementById('countRated').textContent     = counts['rated'];
+      document.getElementById('countInvited').textContent   = inviteCount;
+    }
+    // loadInvites(), loadUsers(), loadTasks() should be implemented similarly to fetch and populate each table
+  </script>
+>>>>>>> 2885139 (Initial commit)
 </body>
 </html>

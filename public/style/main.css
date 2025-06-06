@@ -1,0 +1,175 @@
+/* styles/main.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+:root {
+  --tapa-brown: #934b13;
+  --tapa-light: #eec77f;
+  --tapa-bg-1: #e9e3d1;
+  --tapa-bg-2: #f0f2f5;
+  --tapa-text: #6a370f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: linear-gradient(120deg, var(--tapa-bg-1) 0%, var(--tapa-bg-2) 100%);
+}
+
+.tapa-login-container {
+  background: #fff;
+  border: 6px solid var(--tapa-brown);
+  border-radius: 30px;
+  outline: 8px solid var(--tapa-light);
+  outline-offset: 0.6rem;
+  box-shadow: 0 6px 36px rgba(80,40,20,0.09);
+  max-width: 420px;
+  width: 96vw;
+  padding: 2.3rem 2.2rem;
+  position: relative;
+  animation: fadein .7s ease-out;
+}
+@keyframes fadein {
+  from { opacity: 0; transform: scale(.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.tapa-logo {
+  display: block;
+  margin: 0 auto 0.6rem;
+  width: 58px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px #eee;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: .7rem;
+  font-size: 1.63rem;
+  font-weight: 700;
+  color: var(--tapa-brown);
+}
+
+.login-desc {
+  text-align: center;
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem;
+  color: #432;
+  font-weight: 500;
+}
+
+.form-group {
+  margin-bottom: 1.15rem;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tapa-text);
+  margin-bottom: 0.18rem;
+}
+
+.tooltip {
+  margin-left: 6px;
+  font-size: 1.05em;
+  background: var(--tapa-light);
+  color: var(--tapa-brown);
+  padding: 2.5px 8px;
+  border-radius: 60px;
+  cursor: help;
+  font-weight: bold;
+  border: 1px solid #c28d2a;
+  transition: background .2s;
+}
+.tooltip:hover {
+  background: var(--tapa-brown);
+  color: #fff;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 0.08rem;
+  border-radius: 0.6rem;
+  border: 1.7px solid #c4a484;
+  background: #faf7f2;
+  font-size: 1.06rem;
+  transition: border-color .2s, background .2s;
+}
+input:focus {
+  outline: none;
+  border-color: #2c478e;
+  background: #fff;
+}
+
+.email-explanation {
+  background: #f8ecd0;
+  border-left: 5px solid #b22222;
+  color: #755217;
+  border-radius: 7px;
+  font-size: 0.97rem;
+  padding: 7px 13px;
+  margin: -0.3rem 0 0.8rem;
+  line-height: 1.32;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 0.8rem 0;
+  margin-top: .18rem;
+  font-size: 1.09rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  border: none;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  background: linear-gradient(90deg, var(--tapa-brown) 15%, #183fb3 85%);
+  color: #fff;
+  box-shadow: 0 2px 7px var(--tapa-light33);
+  transition: background .2s, box-shadow .2s;
+}
+.btn-login:hover {
+  background: linear-gradient(90deg, #183fb3 15%, var(--tapa-brown) 85%);
+  box-shadow: 0 4px 16px rgba(161,40,40,0.2);
+}
+
+.text-right { text-align: right; }
+.forgot-link {
+  font-size: .98rem;
+  color: #6b3910;
+  text-decoration: underline;
+  transition: color .2s;
+}
+.forgot-link:hover { color: var(--tapa-brown); }
+
+#messageBox {
+  position: fixed;
+  top: 1.3rem;
+  right: 1.5rem;
+  padding: 1rem 1.2rem;
+  border-radius: .5rem;
+  font-size: 1.06rem;
+  font-weight: 500;
+  color: #fff;
+  display: none;
+  z-index: 1000;
+}
+#messageBox.success { background: #16a34a; }
+#messageBox.error   { background: #dc2626; }
+
+@media (max-width:600px){
+  .tapa-login-container { padding: 1.3rem 0.4rem; }
+  .tapa-logo { width: 40px; }
+}

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Work Plan Book</title>
+  <!-- Montserrat Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Shared Tapa‐Theme Styles -->
+  <style>
+    /* ---------- Base Reset & Font ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: 'Montserrat', sans-serif;
+      color: #2a2a2a;
+      height: 100vh;
+    }
+
+    /* ---------- Layout Containers ---------- */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100%;
+      background-color: #d46e2e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 2rem;
+      /* Tapa‐pattern background overlay */
+      background-image: url('images/tapa-pattern.png');
+      background-repeat: no-repeat;
+      background-size: cover;
+      border-right: 2px solid #a1491a;
+    }
+    .sidebar img.tapa-logo {
+      width: 180px;
+      margin-bottom: 2rem;
+    }
+    .sidebar a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      margin: 1rem 0;
+      width: 100%;
+      text-align: center;
+      padding: 0.75rem 0;
+      transition: background-color 0.3s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem 3rem;
+      background: linear-gradient(135deg, #f0d9b5 0%, #e0c295 100%);
+      min-height: 100vh;
+    }
+
+    /* ---------- Page Header ---------- */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #993d00;
+    }
+    .page-header p {
+      font-size: 1rem;
+      color: #4a4a4a;
+      line-height: 1.5;
+    }
+
+    /* ---------- Explanatory Note ---------- */
+    .page-note {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid #993d00;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    /* ---------- Daily Entries Section ---------- */
+    .daily-section {
+      margin-bottom: 3rem;
+    }
+    .daily-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: #993d00;
+      border-bottom: 2px solid #a1491a;
+      padding-bottom: 0.5rem;
+    }
+    .daily-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 700px) {
+      .daily-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .daily-item {
+      background-color: #fff;
+      padding: 1rem;
+      border: 2px solid #d46e2e;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .daily-item label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #663300;
+    }
+    .daily-item textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      resize: vertical;
+    }
+    .daily-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-save,
+    .btn-submit {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s ease;
+    }
+    .btn-submit {
+      background-color: #218838;
+    }
+    .btn-save:hover {
+      background-color: #218838;
+    }
+    .btn-submit:hover {
+      background-color: #1e7e34;
+    }
+
+    /* ---------- Weekly/Term Summary Section ---------- */
+    .term-section {
+      margin-bottom: 3rem;
+    }
+    .term-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: #993d00;
+      border-bottom: 2px solid #a1491a;
+      padding-bottom: 0.5rem;
+    }
+    .term-card {
+      background-color: #fff;
+      border: 2px solid #d46e2e;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+    .term-card .term-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .term-card .term-header .term-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #663300;
+    }
+    .term-card .term-header .term-status {
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .term-status.draft {
+      background-color: #ffc107;
+    }
+    .term-status.pending {
+      background-color: #17a2b8;
+    }
+    .term-status.accepted {
+      background-color: #28a745;
+    }
+    .term-status.needs-revision {
+      background-color: #dc3545;
+    }
+    .term-status.completed {
+      background-color: #6c757d;
+    }
+    .term-card .term-body {
+      margin-bottom: 1rem;
+    }
+    .term-card ul {
+      list-style: none;
+      margin-left: 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .term-card ul li {
+      margin-bottom: 0.3rem;
+    }
+
+    /* ---------- Yearly Summary Section ---------- */
+    .yearly-section {
+      margin-bottom: 3rem;
+    }
+    .yearly-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: #993d00;
+      border-bottom: 2px solid #a1491a;
+      padding-bottom: 0.5rem;
+    }
+    .yearly-card {
+      background-color: #fff;
+      border: 2px solid #d46e2e;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .yearly-card .year-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .yearly-card .year-header .year-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #663300;
+    }
+    .yearly-card .year-header .year-status {
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .yearly-card .year-header .year-status.draft {
+      background-color: #ffc107;
+    }
+    .yearly-card .year-header .year-status.pending {
+      background-color: #17a2b8;
+    }
+    .yearly-card .year-header .year-status.accepted {
+      background-color: #28a745;
+    }
+    .yearly-card .year-header .year-status.needs-revision {
+      background-color: #dc3545;
+    }
+    .yearly-card .year-header .year-status.completed {
+      background-color: #6c757d;
+    }
+    .yearly-card .year-body {
+      margin-bottom: 1rem;
+    }
+    .yearly-card ul {
+      list-style: none;
+      margin-left: 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .yearly-card ul li {
+      margin-bottom: 0.3rem;
+    }
+
+    /* ---------- Logout Button ---------- */
+    .logout-button {
+      margin-top: auto;
+      margin-bottom: 2rem;
+      background-color: #993d00;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .logout-button:hover {
+      background-color: #7a2d00;
+    }
+  </style>
+</head>
+<body>
+  <!-- ======== SIDEBAR ======== -->
+  <div class="sidebar">
+    <!-- TRA Logo -->
+    <img src="images/Tra Logo.png" class="tapa-logo" alt="TRA Logo" />
+    <!-- Navigation Links -->
+    <a href="index.html" id="nav-dashboard">Home</a>
+    <a href="teacher-workplan.html" class="active" id="nav-workplan">Work Plan Book</a>
+    <a href="tasks.html" id="nav-tasks">Tasks</a>
+    <a href="ratings.html" id="nav-ratings">Ratings</a>
+    <a href="summaries.html" id="nav-summaries">Summaries</a>
+    <!-- Logout -->
+    <button class="logout-button" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- ======== MAIN CONTENT ======== -->
+  <div class="main-content">
+    <!-- Page Header + Explanation -->
+    <header class="page-header">
+      <h1>Work Plan Book</n      ><p>Welcome, Teacher. This is your centralized Work Plan Book page.<br>Enter your daily activities here and submit them for Head Teacher review.</p>
+    </header>
+
+    <!-- Explanatory Note -->
+    <div class="page-note">
+      <strong>How to Use Your Work Plan Book:</strong>
+      <ol style="margin-top: 0.5rem; line-height: 1.4;">
+        <li><strong>Daily Entries (Monday–Friday):</strong> Enter a description of your tasks. Click <em>Save Day Draft</em> to store without notifying your Head Teacher, or <em>Submit Day for Review</em> to send it immediately. Once submitted, it appears in the weekly summary below.</li>
+        <li><strong>Weekly (Term N) Summary:</strong> As soon as you submit any day in week <em>N</em>, a Week N (Term N) card appears showing submitted days. Click <em>Submit Weekly (Term N)</em> when ready to send the week’s summary to your Head Teacher.</li>
+        <li><strong>Term Summaries:</strong> Term 1 = Week 1, Term 2 = Week 2, …, Term 16 = Week 16. Each term summary is generated automatically from your submitted days. Your Head Teacher assigns ratings and comments on these.</li>
+        <li><strong>Yearly Summary:</strong> As your Head Teacher approves each term, that term’s rating flows into your Yearly Summary below. Once all 16 terms are approved, click <em>Submit Yearly</em> to send your full-year overview for final sign-off.</li>
+        <li><strong>Status Badges:</strong> <span style="font-weight:500;">Draft</span> (⌛ you haven't clicked “Submit”), <span style="font-weight:500;">Pending Review</span> (📬 waiting for Head Teacher), <span style="font-weight:500;">Accepted</span> (✅ approved), <span style="font-weight:500;">Needs Revision</span> (🔄 update requested), <span style="font-weight:500;">Completed</span> (🔒 locked).</li>
+      </ol>
+    </div>
+
+    <!-- ======== DAILY ENTRIES SECTION ======== -->
+    <section class="daily-section">
+      <h2>Daily Entries (Monday–Friday)</h2>
+      <div class="daily-grid">
+        <!-- Monday -->
+        <div class="daily-item">
+          <label for="monday-text">Monday:</label>
+          <textarea id="monday-text" rows="4" placeholder="Describe Monday’s activities..."></textarea>
+          <div class="daily-buttons">
+            <button type="button" class="btn-save" onclick="saveDay('monday')">Save Monday</button>
+            <button type="button" class="btn-submit" onclick="submitDay('monday')">Submit Monday</button>
+          </div>
+        </div>
+        <!-- Tuesday -->
+        <div class="daily-item">
+          <label for="tuesday-text">Tuesday:</label>
+          <textarea id="tuesday-text" rows="4" placeholder="Describe Tuesday’s activities..."></textarea>
+          <div class="daily-buttons">
+            <button type="button" class="btn-save" onclick="saveDay('tuesday')">Save Tuesday</button>
+            <button type="button" class="btn-submit" onclick="submitDay('tuesday')">Submit Tuesday</button>
+          </div>
+        </div>
+        <!-- Wednesday -->
+        <div class="daily-item">
+          <label for="wednesday-text">Wednesday:</label>
+          <textarea id="wednesday-text" rows="4" placeholder="Describe Wednesday’s activities..."></textarea>
+          <div class="daily-buttons">
+            <button type="button" class="btn-save" onclick="saveDay('wednesday')">Save Wednesday</button>
+            <button type="button" class="btn-submit" onclick="submitDay('wednesday')">Submit Wednesday</button>
+          </div>
+        </div>
+        <!-- Thursday -->
+        <div class="daily-item">
+          <label for="thursday-text">Thursday:</label>
+          <textarea id="thursday-text" rows="4" placeholder="Describe Thursday’s activities..."></textarea>
+          <div class="daily-buttons">
+            <button type="button" class="btn-save" onclick="saveDay('thursday')">Save Thursday</button>
+            <button type="button" class="btn-submit" onclick="submitDay('thursday')">Submit Thursday</button>
+          </div>
+        </div>
+        <!-- Friday -->
+        <div class="daily-item">
+          <label for="friday-text">Friday:</label>
+          <textarea id="friday-text" rows="4" placeholder="Describe Friday’s activities..."></textarea>
+          <div class="daily-buttons">
+            <button type="button" class="btn-save" onclick="saveDay('friday')">Save Friday</button>
+            <button type="button" class="btn-submit" onclick="submitDay('friday')">Submit Friday</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== WEEKLY/TERM SUMMARY SECTION ======== -->
+    <section class="term-section">
+      <h2>Weekly / Term Summary (Week <span id="current-week">—</span>)</h2>
+      <div class="term-card" id="term-card" style="display: none;">
+        <div class="term-header">
+          <div class="term-title">Term <span id="term-number">—</span> Summary</div>
+          <div class="term-status draft" id="term-status">Draft</div>
+        </div>
+        <div class="term-body">
+          <p><strong>Submitted Days:</strong></p>
+          <ul id="submitted-days-list">
+            <!-- Example: <li>Monday: Completed</li> -->
+          </ul>
+        </div>
+        <div class="term-buttons">
+          <button type="button" class="btn-save" onclick="saveTerm()">Save Weekly/Term</button>
+          <button type="button" class="btn-submit" onclick="submitTerm()">Submit Weekly (Term)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== YEARLY SUMMARY SECTION ======== -->
+    <section class="yearly-section">
+      <h2>Yearly Summary (Year <span id="current-year">—</span>)</h2>
+      <div class="yearly-card" id="yearly-card" style="display: none;">
+        <div class="year-header">
+          <div class="year-title">Year <span id="year-number">—</span> Overview</div>
+          <div class="year-status draft" id="year-status">Draft</div>
+        </div>
+        <div class="year-body">
+          <p><strong>Term Status:</strong></p>
+          <ul id="term-ratings-list">
+            <!-- Example: <li>Term 1: Pending Review</li> -->
+          </ul>
+        </div>
+        <div class="year-buttons">
+          <button type="button" class="btn-save" onclick="saveYear()">Save Yearly</button>
+          <button type="button" class="btn-submit" onclick="submitYear()">Submit Yearly</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======== SCRIPT SECTION ======== -->
+  <script type="module">
+    // Firebase and Firestore imports
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "teacherratingapp.firebaseapp.com",
+      projectId: "teacherratingapp",
+      storageBucket: "teacherratingapp.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Utility to get current ISO week number
+    function getISOWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+      return weekNo;
+    }
+
+    let currentTeacherId = null;
+    let currentSchoolId = null;
+
+    // DOM elements
+    const termCard = document.getElementById('term-card');
+    const termNumberEl = document.getElementById('term-number');
+    const termStatusEl = document.getElementById('term-status');
+    const submittedDaysList = document.getElementById('submitted-days-list');
+    const currentWeekEl = document.getElementById('current-week');
+
+    const yearlyCard = document.getElementById('yearly-card');
+    const yearNumberEl = document.getElementById('year-number');
+    const yearStatusEl = document.getElementById('year-status');
+    const termRatingsList = document.getElementById('term-ratings-list');
+    const currentYearEl = document.getElementById('current-year');
+
+    // Logout function
+    window.logout = () => {
+      signOut(auth).then(() => {
+        window.location.href = 'login.html';
+      });
+    };
+
+    // On auth state change
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentTeacherId = user.uid;
+        currentSchoolId = sessionStorage.getItem('userSchool');
+        const today = new Date();
+        const isoWeek = getISOWeekNumber(today);
+        const year = today.getFullYear();
+        currentWeekEl.textContent = isoWeek;
+        termNumberEl.textContent = isoWeek;
+        currentYearEl.textContent = year;
+        yearNumberEl.textContent = year;
+        setupDailyListener(year, isoWeek);
+        setupTermListener(year, isoWeek);
+        setupYearlyListener(year);
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    // Listen to daily submissions for this week
+    function setupDailyListener(year, isoWeek) {
+      const dailyEntriesPath = `schools/${currentSchoolId}/teachers/${currentTeacherId}/workPlanBook/dailyEntries`;
+      onSnapshot(doc(db, dailyEntriesPath), (snapshot) => {
+        submittedDaysList.innerHTML = '';
+        let hasSubmission = false;
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data.week === isoWeek && data.status === 'PendingReview') {
+            const li = document.createElement('li');
+            li.textContent = `${data.dayName}: Submitted`;
+            submittedDaysList.appendChild(li);
+            hasSubmission = true;
+          }
+        });
+        if (hasSubmission) {
+          termCard.style.display = 'block';
+        } else {
+          termCard.style.display = 'none';
+        }
+      });
+    }
+
+    // Listen to term summary status
+    function setupTermListener(year, isoWeek) {
+      const termDocRef = doc(db,
+        `schools/${currentSchoolId}/teachers/${currentTeacherId}/workPlanBook/termSummaries/${year}-Term${isoWeek}`);
+      onSnapshot(termDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          termStatusEl.textContent = data.status;
+          termStatusEl.className = `term-status ${data.status.toLowerCase()}`;
+          termCard.style.display = 'block';
+        }
+      });
+    }
+
+    // Listen to yearly summary status
+    function setupYearlyListener(year) {
+      const yearlyDocRef = doc(db,
+        `schools/${currentSchoolId}/teachers/${currentTeacherId}/workPlanBook/yearlySummaries/${year}`);
+      onSnapshot(yearlyDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          termRatingsList.innerHTML = '';
+          Object.entries(data.termStatuses || {}).forEach(([termKey, status]) => {
+            const li = document.createElement('li');
+            li.textContent = `${termKey}: ${status}`;
+            termRatingsList.appendChild(li);
+          });
+          yearStatusEl.textContent = data.status;
+          yearStatusEl.className = `year-status ${data.status.toLowerCase()}`;
+          yearlyCard.style.display = 'block';
+        }

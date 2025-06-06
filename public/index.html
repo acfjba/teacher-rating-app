@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
   <meta charset="UTF-8" />
   <title>Welcome - Teacher Rating App</title>
   <style>
@@ -57,14 +58,104 @@
 
     .register-btn:hover {
       background-color: #1e8449;
+=======
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title> Digital TRA Platform</title>
+  <link rel="icon" href="Tra Logo.png" />
+  <style>
+    :root {
+      --accent: #e29d56;
+      --bg-dark: rgba(0, 0, 0, 0.55);
+      --text-light: #fffbe8;
+      --btn-bg: #8b0000;
+      --btn-radius: 8px;
+      --font: "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      height: 100vh;
+      font-family: var(--font);
+      color: var(--text-light);
+      background: url('welcome.jpg') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-dark);
+      z-index: 0;
+    }
+    .card {
+      position: relative;
+      z-index: 1;
+      max-width: 360px;
+      width: 90%;
+      background: rgba(255,255,255,0.05);
+      padding: 32px;
+      border-radius: var(--btn-radius);
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .logo {
+      width: 120px;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+    p {
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .btn {
+      padding: 12px;
+      background: var(--btn-bg);
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      border-radius: var(--btn-radius);
+      transition: background .2s;
+    }
+    .btn:hover {
+      background: #a00000;
+    }
+    @media(min-width:480px) {
+      .btn-group { flex-direction: row; justify-content: center; }
+      .btn { width: 140px; }
+>>>>>>> 2885139 (Initial commit)
     }
   </style>
 </head>
 <body>
+<<<<<<< HEAD
   <h1> The Digital Platform App</h1>
   <p>Empowering Fijian schools with a Digital platform to The Education System.</p>
 
   <a href="login.html"><button class="button login-btn">Click Proceed</button></a><br>
   <a href="register.html"><button class="button register-btn"></button></a>
+=======
+  <div class="overlay"></div>
+  <div class="card">
+    <img src="Tra Logo.png" alt="TRA Logo" class="logo" />
+    <h1>Welcome to TRA Platform</h1>
+    <p>Empowering Fijian schools with a Digital platform for Perfomance & Effiencency.</p>
+    <div class="btn-group">
+      <a href="login.html"   class="btn">Procced to login</a>
+      <a href="registration.html?inviteId={your_invite_id}" class="btn">Only To Registered Users Only</a>
+    </div>
+  </div>
+>>>>>>> 2885139 (Initial commit)
 </body>
 </html>
